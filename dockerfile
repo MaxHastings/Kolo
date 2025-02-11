@@ -10,7 +10,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
 
 # Install Node.js (v18.x) and npm from NodeSource
 RUN apt-get install -y nodejs && \
-        rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/*
 
 # Create the SSH daemon run directory.
 RUN mkdir /var/run/sshd
@@ -45,7 +45,9 @@ RUN --mount=type=cache,target=/opt/conda/pkgs \
 # Install unsloth and additional ML/utility packages.
 RUN pip config set global.timeout 86400
 RUN pip install numpy datasets
-RUN pip install "unsloth[colab-new] @ git+https://github.com/unslothai/unsloth.git@038e6d4c8d40207a87297ab3aaf787c19b1006d1"
+RUN pip install unsloth vllm
+RUN pip install --upgrade pillow
+RUN pip install git+https://github.com/huggingface/trl.git@e95f9fb74a3c3647b86f251b7e230ec51c64b72b
 RUN pip install --no-deps trl peft accelerate bitsandbytes
 RUN pip install transformers
 
