@@ -1,4 +1,14 @@
 import sys
+import argparse
+
+# ------------------------------------------------------------------------------
+# Argument parsing.
+parser = argparse.ArgumentParser()
+parser.add_argument("--output_dir", type=str, default="outputs", help="Output directory for training results.")
+parser.add_argument("--quantization", type=str, default="Q4_K_M", help="Quantization method to use (e.g. 'Q4_K_M').")
+args = parser.parse_args()
+
+# ------------------------------------------------------------------------------
 # Remove conflicting modules (if any)
 modules = list(sys.modules.keys())
 for x in modules:
@@ -94,7 +104,7 @@ def get_custom_dataset(split="train") -> Dataset:
             "answer": assistant_message,
         }
     
-    # Remove the original columns when mapping
+    # Remove the original columns when mapping.
     dataset = dataset.map(format_example, remove_columns=dataset.column_names)
     return dataset
 
@@ -171,10 +181,11 @@ training_args = GRPOConfig(
     num_generations=6,              # Decrease if you run out of memory.
     max_prompt_length=256,
     max_completion_length=200,
-    save_steps=250,
+    save_steps=50,
+    max_steps=250,
     max_grad_norm=0.1,
     report_to="none",               # You can integrate with WandB if desired.
-    output_dir="outputs",
+    output_dir=args.output_dir,     # Set the output directory from the argument.
 )
 
 trainer = GRPOTrainer(
@@ -193,3 +204,32 @@ trainer = GRPOTrainer(
 
 # Start training.
 trainer.train()
+
+# ------------------------------------------------------------------------------
+# Saving Code (executed after training is complete)
+
+# Use the output directory provided by the user.
+volume_output_dir = f"/var/kolo_data/unsloth/{args.output_dir}"
+
+print("Saving fine-tuned model locally...")
+model.save_pretrained(volume_output_dir)
+tokenizer.save_pretrained(volume_output_dir)
+
+print(f"Saving fine-tuned model in GGUF format to {volume_output_dir}...")
+
+if args.quantization:
+    model.save_pretrained_gguf(volume_output_dir, tokenizer, quantization_method=args.quantization.lower())
+    ext = args.quantization.upper()
+    filename = f"Modelfile{ext}"
+    print(f"Creating quantized model file to {filename}")
+    
+    content = f"FROM ./unsloth.{ext}.gguf"
+    
+    with open(f"{volume_output_dir}/{filename}", "w") as file:
+        file.write(content)
+    
+    print(f"File '{filename}' created successfully with contents:\n{content}")
+else:
+    model.save_pretrained_gguf(volume_output_dir, tokenizer)
+
+print("Model saved successfully!")
