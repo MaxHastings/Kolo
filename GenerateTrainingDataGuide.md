@@ -236,35 +236,25 @@ Example configuration for three groups:
 ```
 file_groups:
   UninstallModel:
-    iterations: 3
+    iterations: 10
     files:
       - uninstall_model.ps1
     question_prompt: WithFileName
     generate_question_list: [CodingList]
-    question_instruction_list: [CasualandFormal]
+    question_instruction_list: [ToneInstructions]
     file_header: DefaultFileHeader
     answer_prompt: DefaultAnswerPrompt
-    answer_instruction_list: [SimpleAndComplex]
+    answer_instruction_list: [Default]
   README:
-    iterations: 3
+    iterations: 30
     files:
       - README.md
     question_prompt: NoFileName
     generate_question_list: [DocumentList]
-    question_instruction_list: [CasualandFormal]
+    question_instruction_list: [ToneInstructions]
     file_header: DefaultFileHeader
     answer_prompt: DefaultAnswerPrompt
-    answer_instruction_list: [SimpleAndComplex]
-  DeleteModel:
-    iterations: 3
-    files:
-      - delete_model.ps1
-    question_prompt: WithFileName
-    generate_question_list: [CodingList]
-    question_instruction_list: [CasualandFormal]
-    file_header: DefaultFileHeader
-    answer_prompt: DefaultAnswerPrompt
-    answer_instruction_list: [SimpleAndComplex]
+    answer_instruction_list: [Default]
 ```
 
 See [generate_qa_config.yaml](https://github.com/MaxHastings/Kolo/blob/main/scripts/generate_qa_config.yaml) for a full config example.
