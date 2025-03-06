@@ -13,29 +13,50 @@ providers:
     model: gpt-4o-mini
 
 QuestionInstructionList:
-  - name: 'CasualandFormal'
+  - name: 'ToneInstructions'
     instruction:
-      - 'For each question you generate write casually.'
-      - 'For each question you generate write like a developer.'
-      - 'For each question you generate write like a noob.'
-      - 'For each question you generate write with a lot of detail.'
-
-AnswerInstructionList:
-  - name: 'Default'
-    instruction:
-      - ''
+      - 'Adopt a casual tone with everyday language.'
+      - 'Use a formal tone with polite, sophisticated language.'
+      - 'Write as if you are a curious beginner, eager to learn.'
+      - 'Explain using technical jargon as a seasoned developer would.'
+      - 'Speak simply and clearly, as if explaining to a non-expert.'
+      - 'Inject a bit of sarcasm to highlight absurdities humorously.'
+      - 'Maintain a professional business tone with formal vocabulary.'
+      - 'Express passion and advocacy for the subject matter.'
+      - 'Speak in a direct, no-nonsense tone.'
+      - 'Be verbose and elaborate, providing rich details.'
+      - 'Adopt a friendly and approachable tone.'
+      - 'Blend colloquial expressions with precise technical references.'
+      - 'Exhibit skepticism by questioning assumptions thoughtfully.'
+      - 'Narrate as if telling an engaging story.'
+      - 'Use witty, playful language to keep the reader engaged.'
 
 GenerateQuestionLists:
   - name: 'DocumentList'
     questions:
-      - 'Based on the following, generate a list of questions where the user requests for a custom thing. Be elaborate and specific.'
-      - 'Based on the following, generate a list of questions where the user asks how to use different things.'
-      - 'Based on the following, generate a list of questions where the user asks about different parts.'
-      - 'Based on the following, generate a list of questions where the user asks to understand the concepts.'
+      - 'Write a question asking for detailed explanations on how to utilize the documentation, including key steps, prerequisites, and potential pitfalls.'
+      - 'Craft a question from a user trying to decipher the structure of the documentation and its intended use for various features.'
+      - 'Formulate a question seeking best practices for following and applying the guidelines presented in the documentation.'
+      - 'Compose a question that asks for clarifications on ambiguous sections of the documentation with an emphasis on practical applications.'
+      - 'Create a question from a novice perspective, asking for a broad yet detailed overview of the documentation content.'
+      - 'Generate a question targeting specific implementation details mentioned in the documentation, requesting step-by-step guidance.'
+      - 'Draft a question where the user seeks advice on leveraging the documentation to solve real-world challenges.'
+      - 'Pose a question that identifies potential gaps in the documentation and invites suggestions for improvement.'
+      - 'Invent a question from someone looking to integrate documented processes into an existing workflow.'
+      - 'Devise a question asking about the underlying rationale behind the documentation’s structure and instructions.'
+
   - name: 'CodingList'
     questions:
-      - 'Based on the following, generate a list of questions where a user wants to learn the various ways on how to use the code.'
-      - 'Based on the following, generate a list of questions where the user wants to know what a specific thing happens in the code.'
+      - 'Formulate a question asking for an explanation of specific code segments and how they contribute to the overall functionality.'
+      - 'Compose a question that explores various methods within the code, comparing their benefits and trade-offs.'
+      - 'Write a question where the user wants to debug or optimize a particular piece of code, including context and error details.'
+      - 'Generate a question asking for a detailed walkthrough of the code logic, highlighting critical variables and control structures.'
+      - 'Draft a question requesting clarification on how the code interacts with external libraries or APIs, with concrete examples.'
+      - 'Pose a question from a developer seeking insight into the rationale behind a specific algorithm implemented in the code.'
+      - 'Create a question asking for best practices in refactoring or enhancing the provided code sample.'
+      - 'Devise a question where the user compares multiple coding approaches and needs advice on the most efficient solution.'
+      - 'Generate a question challenging the LLM to identify potential bugs or performance bottlenecks in the code snippet.'
+      - 'Invent a question that asks for a concise summary of the code’s purpose along with an explanation of its key functions.'
 
 FileHeaders:
   - name: 'DefaultFileHeader'
@@ -54,124 +75,114 @@ QuestionPrompt:
       {generate_question}
       {instruction}
       {file_content}
-      Use the following output format:
-        1. <question 1>
-        2. <question 2>
-        3. <question 3>
-      etc.
   - name: 'WithFileName'
     description: |
       {generate_question}
       {instruction}
+      You are required to reference {file_name_list} in the question that you create!
       {file_content}
-      Use the following output format.
-        1. <question 1>
-        2. <question 2>
-        3. <question 3>
-      etc.
-      You are required to reference {file_name_list} for every single question that you generate!
 
 file_groups:
-  UninstallModel:
-    iterations: 3
-    files:
-      - uninstall_model.ps1
-    question_prompt: WithFileName
-    generate_question_list: [CodingList]
-    question_instruction_list: [CasualandFormal]
-    file_header: DefaultFileHeader
-    answer_prompt: DefaultAnswerPrompt
-    answer_instruction_list: [Default]
-  README:
-    iterations: 5
-    files:
-      - README.md
-    question_prompt: NoFileName
-    generate_question_list: [DocumentList]
-    question_instruction_list: [CasualandFormal]
-    file_header: DefaultFileHeader
-    answer_prompt: DefaultAnswerPrompt
-    answer_instruction_list: [Default]
-  DeleteModel:
-    iterations: 3
-    files:
-      - delete_model.ps1
-    question_prompt: WithFileName
-    generate_question_list: [CodingList]
-    question_instruction_list: [CasualandFormal]
-    file_header: DefaultFileHeader
-    answer_prompt: DefaultAnswerPrompt
-    answer_instruction_list: [Default]
-  BuildImage:
-    iterations: 3
-    question_prompt: WithFileName
-    generate_question_list: [CodingList, DocumentList]
-    question_instruction_list: [CasualandFormal]
-    file_header: DefaultFileHeader
-    answer_prompt: DefaultAnswerPrompt
-    answer_instruction_list: [Default]
-    files:
-      - build_image.ps1
-      - dockerfile
-      - supervisord.conf
-  TrainTorchTune:
-    iterations: 3
-    question_prompt: WithFileName
-    generate_question_list: [CodingList]
-    question_instruction_list: [CasualandFormal]
-    file_header: DefaultFileHeader
-    answer_prompt: DefaultAnswerPrompt
-    answer_instruction_list: [Default]
-    files:
-      - train_model_torchtune.ps1
-      - merge_lora.py
-      - convert_jsonl_to_json.py
-  TrainUnsloth:
-    iterations: 3
-    question_prompt: WithFileName
-    generate_question_list: [CodingList]
-    question_instruction_list: [CasualandFormal]
-    file_header: DefaultFileHeader
-    answer_prompt: DefaultAnswerPrompt
-    answer_instruction_list: [Default]
-    files:
-      - train_model_unsloth.ps1
-      - train.py
-  InstallModel:
-    iterations: 3
-    question_prompt: WithFileName
-    generate_question_list: [CodingList]
-    question_instruction_list: [CasualandFormal]
-    file_header: DefaultFileHeader
-    answer_prompt: DefaultAnswerPrompt
-    answer_instruction_list: [Default]
-    files:
-      - install_model.ps1
-  ListModels:
-    iterations: 3
-    question_prompt: WithFileName
-    generate_question_list: [CodingList]
-    question_instruction_list: [CasualandFormal]
-    file_header: DefaultFileHeader
-    answer_prompt: DefaultAnswerPrompt
-    answer_instruction_list: [Default]
-    files:
-      - list_models.ps1
-  FineTuningGuide:
-    iterations: 5
-    question_prompt: NoFileName
-    generate_question_list: [DocumentList]
-    question_instruction_list: [CasualandFormal]
-    file_header: DefaultFileHeader
-    answer_prompt: DefaultAnswerPrompt
-    answer_instruction_list: [Default]
-    files:
-      - FineTuningGuide.md
+  # UninstallModel:
+  #   iterations: 5
+  #   files:
+  #     - uninstall_model.ps1
+  #   question_prompt: WithFileName
+  #   generate_question_list: [CodingList]
+  #   question_instruction_list: [ToneInstructions]
+  #   file_header: DefaultFileHeader
+  #   answer_prompt: DefaultAnswerPrompt
+  #   answer_instruction_list: [Default]
+  # README:
+  #   iterations: 5
+  #   files:
+  #     - README.md
+  #   question_prompt: NoFileName
+  #   generate_question_list: [DocumentList]
+  #   question_instruction_list: [ToneInstructions]
+  #   file_header: DefaultFileHeader
+  #   answer_prompt: DefaultAnswerPrompt
+  #   answer_instruction_list: [Default]
+  # DeleteModel:
+  #   iterations: 5
+  #   files:
+  #     - delete_model.ps1
+  #   question_prompt: WithFileName
+  #   generate_question_list: [CodingList]
+  #   question_instruction_list: [ToneInstructions]
+  #   file_header: DefaultFileHeader
+  #   answer_prompt: DefaultAnswerPrompt
+  #   answer_instruction_list: [Default]
+  # BuildImage:
+  #   iterations: 5
+  #   question_prompt: WithFileName
+  #   generate_question_list: [CodingList, DocumentList]
+  #   question_instruction_list: [ToneInstructions]
+  #   file_header: DefaultFileHeader
+  #   answer_prompt: DefaultAnswerPrompt
+  #   answer_instruction_list: [Default]
+  #   files:
+  #     - build_image.ps1
+  #     - dockerfile
+  #     - supervisord.conf
+  # TrainTorchTune:
+  #   iterations: 5
+  #   question_prompt: WithFileName
+  #   generate_question_list: [CodingList]
+  #   question_instruction_list: [ToneInstructions]
+  #   file_header: DefaultFileHeader
+  #   answer_prompt: DefaultAnswerPrompt
+  #   answer_instruction_list: [Default]
+  #   files:
+  #     - train_model_torchtune.ps1
+  #     - merge_lora.py
+  #     - convert_jsonl_to_json.py
+  # TrainUnsloth:
+  #   iterations: 5
+  #   question_prompt: WithFileName
+  #   generate_question_list: [CodingList]
+  #   question_instruction_list: [ToneInstructions]
+  #   file_header: DefaultFileHeader
+  #   answer_prompt: DefaultAnswerPrompt
+  #   answer_instruction_list: [Default]
+  #   files:
+  #     - train_model_unsloth.ps1
+  #     - train.py
+  # InstallModel:
+  #   iterations: 5
+  #   question_prompt: WithFileName
+  #   generate_question_list: [CodingList]
+  #   question_instruction_list: [ToneInstructions]
+  #   file_header: DefaultFileHeader
+  #   answer_prompt: DefaultAnswerPrompt
+  #   answer_instruction_list: [Default]
+  #   files:
+  #     - install_model.ps1
+  # ListModels:
+  #   iterations: 5
+  #   question_prompt: WithFileName
+  #   generate_question_list: [CodingList]
+  #   question_instruction_list: [ToneInstructions]
+  #   file_header: DefaultFileHeader
+  #   answer_prompt: DefaultAnswerPrompt
+  #   answer_instruction_list: [Default]
+  #   files:
+  #     - list_models.ps1
+  # FineTuningGuide:
+  #   iterations: 5
+  #   question_prompt: NoFileName
+  #   generate_question_list: [DocumentList]
+  #   question_instruction_list: [ToneInstructions]
+  #   file_header: DefaultFileHeader
+  #   answer_prompt: DefaultAnswerPrompt
+  #   answer_instruction_list: [Default]
+  #   files:
+  #     - FineTuningGuide.md
   GenerateTrainingDataGuide:
-    iterations: 5
+    iterations: 3
     question_prompt: NoFileName
     generate_question_list: [DocumentList]
-    question_instruction_list: [CasualandFormal]
+    question_instruction_list: [ToneInstructions]
     file_header: DefaultFileHeader
     answer_prompt: DefaultAnswerPrompt
     answer_instruction_list: [Default]

@@ -10,37 +10,21 @@ QUESTIONS_DIR = os.path.join(BASE_OUTPUT_DIR, "questions")
 ANSWERS_DIR = os.path.join(BASE_OUTPUT_DIR, "answers")
 OUTPUT_FILE = "/app/data.jsonl"
 
-def parse_questions_from_file(filepath: str) -> List[str]:
+def parse_question_from_file(filepath: str) -> List[str]:
     """
-    Reads file content and extracts question texts from a wide range of formats.
-    Processes the file line by line, removing numbering, bullet symbols, and markdown formatting,
-    and only returns lines containing a '?'.
+    Reads the entire file content and returns it as a single question.
+    Since each file now contains a complete question, no further parsing is needed.
     """
     with open(filepath, 'r', encoding='utf-8') as f:
-        text = f.read()
-
-    questions = []
-    for line in text.splitlines():
-        stripped = line.strip()
-        if not stripped:
-            continue
-
-        # Remove leading numbering or bullet symbols (like "1.", "-", "+", or "*")
-        cleaned = re.sub(r'^[\d\.\-\+\*]+\s*', '', stripped)
-        # Remove extra asterisks used for markdown formatting
-        cleaned = re.sub(r'\*+', '', cleaned).strip()
-
-        if '?' in cleaned:
-            questions.append(cleaned)
-
-    return questions
+        content = f.read().strip()
+    return [content] if content else []
 
 def pair_questions_and_answers():
     """
     Looks for all question files in the QUESTIONS_DIR and then for each question,
     pairs it with the corresponding answer files from ANSWERS_DIR.
 
-    Assumes the new naming convention:
+    Assumes the naming convention:
       - Questions: questions_{group_name}_seed{q_seed_idx}_instr{instr_idx}.txt
       - Answers:   answer_{group_name}_seed{q_seed_idx}_instr{instr_idx}_q{question_number}_{hash}.txt
 
@@ -61,7 +45,7 @@ def pair_questions_and_answers():
         instr_idx = m.group(3)
         identifier = f"{group_name}_seed{q_seed_idx}_instr{instr_idx}"
         q_filepath = os.path.join(QUESTIONS_DIR, q_filename)
-        questions = parse_questions_from_file(q_filepath)
+        questions = parse_question_from_file(q_filepath)
 
         # Initialize stats for this identifier.
         group_stats[identifier] = {'questions': len(questions), 'answers': 0}

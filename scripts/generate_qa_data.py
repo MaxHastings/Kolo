@@ -60,7 +60,6 @@ def call_api(
         attempt = 0
         while attempt <= max_retries:
             try:
-                # Using your new `openai` library code
                 response = openai_client.chat.completions.create(
                     messages=[{"role": "user", "content": prompt}],
                     model=model
@@ -122,25 +121,6 @@ def find_file_in_subdirectories(base_dir: Path, relative_path: str) -> Optional[
         if path.is_file():
             return path
     return None
-
-
-def parse_questions(question_text: str) -> List[str]:
-    """
-    Parses the output from the LLM to extract lines that contain question-like strings.
-    """
-    questions = []
-    for line in question_text.splitlines():
-        stripped = line.strip()
-        if not stripped:
-            continue
-
-        # Remove leading numbering or bullets (like "1.", "-", "+", or "*")
-        cleaned = re.sub(r'^[\d\.\-\+\*]+\s*', '', stripped)
-        # Remove extra asterisks used for formatting
-        cleaned = re.sub(r'\*+', '', cleaned).strip()
-        if '?' in cleaned:
-            questions.append(cleaned)
-    return questions
 
 
 def get_hash(text: str) -> str:
@@ -272,11 +252,11 @@ def process_file_group(
     answers_dir.mkdir(parents=True, exist_ok=True)
     debug_dir.mkdir(parents=True, exist_ok=True)
 
-    # 8) We'll generate questions for each (question_seed, question_instruction)
+    # 8) We'll generate a single question for each (question_seed, question_instruction)
     def generate_questions(q_seed_idx: int, instr_idx: int, seed_text: str, instruction: str):
         """
-        Generate a block of questions from a single question seed + instruction pair.
-        Return the text as well as the parsed list of questions.
+        Generate a single question from a single question seed + instruction pair.
+        Return the text as the question.
         """
         # Format the final question prompt
         file_name_list_str = ", ".join(file_list)
@@ -294,26 +274,25 @@ def process_file_group(
 
         if questions_path.exists():
             # If we already have this questions file, reuse it
-            question_list_text = read_text_from_file(questions_path).strip()
+            question_text = read_text_from_file(questions_path).strip()
             logger.info(f"[Group: {group_name}] Using existing questions file: {out_filename}")
         else:
             # Call the LLM
-            question_list_text = call_api(
+            question_text = call_api(
                 provider=question_provider_config.get("provider"),
                 model=question_provider_config.get("model"),
                 prompt=final_question_prompt,
                 global_ollama_url=global_ollama_url,
                 openai_client=openai_client
             )
-            if not question_list_text:
-                logger.error(f"[Group: {group_name}] Failed to generate questions (seed={q_seed_idx}, instr={instr_idx}).")
+            if not question_text:
+                logger.error(f"[Group: {group_name}] Failed to generate question (seed={q_seed_idx}, instr={instr_idx}).")
                 return ""
-
             # Save outputs
-            write_text_to_file(questions_path, question_list_text)
+            write_text_to_file(questions_path, question_text)
             write_text_to_file(debug_path, final_question_prompt)
 
-        return question_list_text
+        return question_text
 
     # Collect tasks for concurrency
     question_generation_tasks = []
@@ -324,7 +303,7 @@ def process_file_group(
     # Decide how many workers to use
     inner_workers = global_thread_count if global_thread_count > 1 else 1
 
-    # We'll store (seed_idx, instr_idx) -> [questions]
+    # We'll store (seed_idx, instr_idx) -> single question text (wrapped in a list)
     question_collections: Dict[(int, int), List[str]] = {}
 
     def handle_question_generation_task(task_tuple):
@@ -332,8 +311,8 @@ def process_file_group(
         text_block = generate_questions(q_seed_idx, instr_idx, seed_text, instruction)
         if not text_block:
             return (q_seed_idx, instr_idx, [])
-        parsed_list = parse_questions(text_block)
-        return (q_seed_idx, instr_idx, parsed_list)
+        # Use the entire output as the question, wrapped in a list
+        return (q_seed_idx, instr_idx, [text_block])
 
     # Generate questions concurrently or sequentially
     if inner_workers > 1:
@@ -361,14 +340,12 @@ def process_file_group(
         """
         Generate an answer to a single question with a single answer instruction.
         """
-        # The answer prompt might have placeholders:
         final_answer_prompt = answer_prompt_template.format(
             file_content=combined_file_content_for_answers,
             instruction=answer_instruction,
             question=question_text
         )
         
-        # Incorporate a short hash of the answer_instruction into the filenames
         ans_instr_hash = get_hash(answer_instruction)[:8]
         answer_filename = f"answer_{group_name}_seed{q_seed_idx}_instr{instr_idx}_q{question_number}_{ans_instr_hash}.txt"
         debug_filename = f"debug_{group_name}_answer_seed{q_seed_idx}_instr{instr_idx}_q{question_number}_{ans_instr_hash}.txt"
@@ -378,10 +355,8 @@ def process_file_group(
         answer_debug_path = debug_dir / debug_filename
         meta_file_path = answers_dir / meta_filename
 
-        # Compute a hash of the fully formatted answer prompt to capture all relevant changes
         current_hash = get_hash(final_answer_prompt)
 
-        # Determine if we regenerate
         regenerate = True
         if answer_file_path.exists():
             if meta_file_path.exists():
@@ -394,14 +369,12 @@ def process_file_group(
                 else:
                     logger.info(f"[Group: {group_name}] Detected changed question/instruction, regenerating answer.")
             else:
-                # If there's no meta file, create one now and assume it is up-to-date
                 write_text_to_file(meta_file_path, current_hash)
                 regenerate = False
 
         if not regenerate:
             return
 
-        # Actually generate
         answer_text = call_api(
             provider=answer_provider_config.get("provider"),
             model=answer_provider_config.get("model"),
@@ -415,29 +388,24 @@ def process_file_group(
             )
             return
 
-        # Save outputs
         write_text_to_file(answer_file_path, answer_text)
         write_text_to_file(answer_debug_path, final_answer_prompt)
         write_text_to_file(meta_file_path, current_hash)
         logger.info(f"[Group: {group_name}] Saved answer -> {answer_file_path}")
 
-
-
-    # Prepare tasks for answer-generation
     answer_tasks = []
     for (q_seed_idx, instr_idx), question_list in question_collections.items():
         if not question_list:
             continue
         for q_num, q_text in enumerate(question_list, start=1):
-            # Possibly generate multiple answers for each question if we have multiple answer instructions
             for ans_instr in all_answer_instructions:
                 answer_tasks.append((q_seed_idx, instr_idx, q_num, q_text, ans_instr))
 
+    
     def handle_answer_task(task_tuple):
         q_seed_idx, instr_idx, question_number, question_text, answer_instruction = task_tuple
         generate_answer(q_seed_idx, instr_idx, question_number, question_text, answer_instruction)
 
-    # Run answer tasks
     if inner_workers > 1:
         with ThreadPoolExecutor(max_workers=inner_workers) as pool:
             _ = list(as_completed(pool.submit(handle_answer_task, t) for t in answer_tasks))
@@ -457,21 +425,17 @@ def main() -> None:
         logger.error(f"Configuration file not found: {config_path}")
         return
 
-    # Load the main config
     config = yaml.safe_load(config_path.read_text(encoding="utf-8"))
 
-    # Global settings
     global_config = config.get("global", {})
     base_dir = global_config.get("base_dir", "")
     output_base_path = Path(global_config.get("output_base_path", "/var/kolo_data"))
     full_base_dir = output_base_path / base_dir
     global_ollama_url = global_config.get("ollama_url", "http://localhost:11434/api/generate")
 
-    # Providers
     question_provider_config = config.get("providers", {}).get("question", {})
     answer_provider_config = config.get("providers", {}).get("answer", {})
 
-    # Initialize an OpenAI client if needed
     openai_client = None
     if (
         question_provider_config.get("provider", "").lower() == "openai"
@@ -480,14 +444,11 @@ def main() -> None:
         if OpenAI is None:
             logger.error("OpenAI client cannot be initialized because the package is missing.")
         else:
-            # Create a single client, referencing your example usage
             api_key = os.environ.get("OPENAI_API_KEY")
             openai_client = OpenAI(api_key=api_key)
 
-    # File groups
     file_groups_config = config.get("file_groups", {})
 
-    # Expand file groups by 'iterations'
     expanded_file_groups = {}
     for group_name, g_config in file_groups_config.items():
         iterations = g_config.get("iterations", 1)
@@ -498,7 +459,6 @@ def main() -> None:
     total_groups = len(expanded_file_groups)
     logger.info(f"Starting processing of {total_groups} file groups with up to {args.threads} threads...")
 
-    # Use a thread pool for the groups
     with ThreadPoolExecutor(max_workers=args.threads) as executor:
         futures = []
         for group_name, group_conf in expanded_file_groups.items():
@@ -518,7 +478,6 @@ def main() -> None:
             futures.append(future)
 
         for future in as_completed(futures):
-            # Raise exceptions if any occurred
             future.result()
 
     logger.info("All file groups have been processed successfully.")
