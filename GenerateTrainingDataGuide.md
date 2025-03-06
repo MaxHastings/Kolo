@@ -103,13 +103,16 @@ This list defines different instructions to style the generated questions. Each 
 
 ```
 QuestionInstructionList:
-  - name: 'CasualandFormal'
+  - name: 'ToneInstructions'
     instruction:
-      - 'For each question write like a casual person.'
-      - 'For each question write like a formal person.'
+      - 'Keep it short.'
+      - ''
+      - 'Use slang.'
+      - 'Use broken english.'
+      - 'Sound like a developer.'
 ```
 
-Usage: During question generation, each instruction is applied to a seed to create variations in tone.
+Usage: During question generation, each instruction is applied to a seed to create variations in questions, in the above example using different tones.
 
 #### Answer Instruction List
 
@@ -133,18 +136,19 @@ The GenerateQuestionLists section provides seed questions or prompts that drive 
 GenerateQuestionLists:
   - name: 'DocumentList'
     questions:
-      - 'Based on the above content, generate a list of questions where the user asks how to use different things.'
-      - 'Based on the above content, generate a list of questions where the user asks to summarize different parts of the content.'
-      - 'Based on the above content, generate a list of questions where the user wants to learn certain parts of the content.'
-      - 'Based on the above content, generate a list of questions where the user wants to understand the concepts in the content.'
-      - 'Based on the above content, generate a list of questions where the users ask you to help do something for them based on various needs and requirements.'
+      - 'Write a question as if you are an experienced user with made up specific requirements and details and you want the LLM to work for you using the following information.'
+      - 'Write a question as if you are a new user and you want to know how to do something from the following information.'
+      - 'Write a question as if you are a new user and you want to know something specific from the following information.'
+      - 'Write a question as if you are a new user and you want to have a broad understanding of the following information.'
+      - 'Write a question as if you are a new user that is confused and wants something rephrased from the following information.'
+
   - name: 'CodingList'
     questions:
-      - 'Based on the above content, generate a list of questions where a new user wants to learn how to use the code and what it does using different tones and styles.'
-      - 'Based on the above content, generate a list of questions where the user wants to know what a specific thing does in the code.'
+      - 'Write a question as if you are an experienced user that wants to know a specific implementation detail in the following code.'
+      - 'Write a question as if you are a new user that wants to know how to use the following code for a particular situation.'
 ```
 
-Usage: The seeds are combined with the instructions to produce a variety of questions, such as tailoring them to either document or coding contexts.
+Usage: The seeds are combined with the instructions to produce a diverse set of questions, such as in the above example tailoring them to either documentation or coding contexts.
 
 ### Prompt Templates
 
@@ -170,9 +174,10 @@ Defines how to format the answer prompt:
 AnswerPrompt:
   - name: 'DefaultAnswerPrompt'
     description: |
-      {file_content}
-      {instruction}
       {question}
+      {instruction}
+      ---
+      {file_content}
 ```
 
 Usage: Placeholders are replaced as follows:
@@ -191,25 +196,17 @@ For this example, there are two variants for question prompts, depending on whet
 QuestionPrompt:
   - name: 'NoFileName'
     description: |
-      {file_content}
       {generate_question}
       {instruction}
-      Use the following output format:
-        1. <question 1>
-        2. <question 2>
-        3. <question 3>
-      etc.
+      ---
+      {file_content}
   - name: 'WithFileName'
     description: |
-      {file_content}
       {generate_question}
       {instruction}
-      Use the following output format.
-        1. <question 1>
-        2. <question 2>
-        3. <question 3>
-      etc.
-      You are required to reference {file_name_list} for every single question that you generate!
+      You are required to reference {file_name_list} in the question that you create!
+      ---
+      {file_content}
 ```
 
 Usage:
@@ -229,10 +226,10 @@ The file_groups section organizes the files into groups that will each be proces
 - files: List of files that you want to use for the LLM context.
 - question_prompt: Which question prompt template to use (e.g., NoFileName or WithFileName).
 - generate_question_list: Which question generation seed list(s) to use.
-- question_instruction_list: Which instruction list to apply when generating questions.
+- question_instruction_list: Which instruction list to apply when generating a question.
 - file_header: Which file header template to use.
 - answer_prompt: Which answer prompt template to use.
-- answer_instruction_list: Which answer instruction list to apply when generating answers.
+- answer_instruction_list: Which answer instruction list to apply when generating an answer.
 
 Example configuration for three groups:
 

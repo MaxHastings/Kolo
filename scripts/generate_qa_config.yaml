@@ -12,51 +12,33 @@ providers:
     provider: openai # Use "ollama" or "openai"
     model: gpt-4o-mini
 
+AnswerInstructionList:
+  - name: 'Default'
+    instruction:
+      - ''
+
 QuestionInstructionList:
   - name: 'ToneInstructions'
     instruction:
-      - 'Adopt a casual tone with everyday language.'
-      - 'Use a formal tone with polite, sophisticated language.'
-      - 'Write as if you are a curious beginner, eager to learn.'
-      - 'Explain using technical jargon as a seasoned developer would.'
-      - 'Speak simply and clearly, as if explaining to a non-expert.'
-      - 'Inject a bit of sarcasm to highlight absurdities humorously.'
-      - 'Maintain a professional business tone with formal vocabulary.'
-      - 'Express passion and advocacy for the subject matter.'
-      - 'Speak in a direct, no-nonsense tone.'
-      - 'Be verbose and elaborate, providing rich details.'
-      - 'Adopt a friendly and approachable tone.'
-      - 'Blend colloquial expressions with precise technical references.'
-      - 'Exhibit skepticism by questioning assumptions thoughtfully.'
-      - 'Narrate as if telling an engaging story.'
-      - 'Use witty, playful language to keep the reader engaged.'
+      - 'Keep it short.'
+      - ''
+      - 'Use slang.'
+      - 'Use broken english.'
+      - 'Sound like a developer.'
 
 GenerateQuestionLists:
   - name: 'DocumentList'
     questions:
-      - 'Write a question asking for detailed explanations on how to utilize the documentation, including key steps, prerequisites, and potential pitfalls.'
-      - 'Craft a question from a user trying to decipher the structure of the documentation and its intended use for various features.'
-      - 'Formulate a question seeking best practices for following and applying the guidelines presented in the documentation.'
-      - 'Compose a question that asks for clarifications on ambiguous sections of the documentation with an emphasis on practical applications.'
-      - 'Create a question from a novice perspective, asking for a broad yet detailed overview of the documentation content.'
-      - 'Generate a question targeting specific implementation details mentioned in the documentation, requesting step-by-step guidance.'
-      - 'Draft a question where the user seeks advice on leveraging the documentation to solve real-world challenges.'
-      - 'Pose a question that identifies potential gaps in the documentation and invites suggestions for improvement.'
-      - 'Invent a question from someone looking to integrate documented processes into an existing workflow.'
-      - 'Devise a question asking about the underlying rationale behind the documentation’s structure and instructions.'
+      - 'Write a question as if you are an experienced user with made up specific requirements and details and you want the LLM to work for you using the following information.'
+      - 'Write a question as if you are a new user and you want to know how to do something from the following information.'
+      - 'Write a question as if you are a new user and you want to know something specific from the following information.'
+      - 'Write a question as if you are a new user and you want to have a broad understanding of the following information.'
+      - 'Write a question as if you are a new user that is confused and wants something rephrased from the following information.'
 
   - name: 'CodingList'
     questions:
-      - 'Formulate a question asking for an explanation of specific code segments and how they contribute to the overall functionality.'
-      - 'Compose a question that explores various methods within the code, comparing their benefits and trade-offs.'
-      - 'Write a question where the user wants to debug or optimize a particular piece of code, including context and error details.'
-      - 'Generate a question asking for a detailed walkthrough of the code logic, highlighting critical variables and control structures.'
-      - 'Draft a question requesting clarification on how the code interacts with external libraries or APIs, with concrete examples.'
-      - 'Pose a question from a developer seeking insight into the rationale behind a specific algorithm implemented in the code.'
-      - 'Create a question asking for best practices in refactoring or enhancing the provided code sample.'
-      - 'Devise a question where the user compares multiple coding approaches and needs advice on the most efficient solution.'
-      - 'Generate a question challenging the LLM to identify potential bugs or performance bottlenecks in the code snippet.'
-      - 'Invent a question that asks for a concise summary of the code’s purpose along with an explanation of its key functions.'
+      - 'Write a question as if you are an experienced user that wants to know a specific implementation detail in the following code.'
+      - 'Write a question as if you are a new user that wants to know how to use the following code for a particular situation.'
 
 FileHeaders:
   - name: 'DefaultFileHeader'
@@ -65,121 +47,124 @@ FileHeaders:
 AnswerPrompt:
   - name: 'DefaultAnswerPrompt'
     description: |
-      {file_content}
-      {instruction}
       {question}
+      {instruction}
+      ---
+      {file_content}
 
 QuestionPrompt:
   - name: 'NoFileName'
     description: |
       {generate_question}
       {instruction}
+      ---
       {file_content}
   - name: 'WithFileName'
     description: |
       {generate_question}
       {instruction}
       You are required to reference {file_name_list} in the question that you create!
+      ---
       {file_content}
 
 file_groups:
-  # UninstallModel:
-  #   iterations: 5
-  #   files:
-  #     - uninstall_model.ps1
-  #   question_prompt: WithFileName
-  #   generate_question_list: [CodingList]
-  #   question_instruction_list: [ToneInstructions]
-  #   file_header: DefaultFileHeader
-  #   answer_prompt: DefaultAnswerPrompt
-  #   answer_instruction_list: [Default]
-  # README:
-  #   iterations: 5
-  #   files:
-  #     - README.md
-  #   question_prompt: NoFileName
-  #   generate_question_list: [DocumentList]
-  #   question_instruction_list: [ToneInstructions]
-  #   file_header: DefaultFileHeader
-  #   answer_prompt: DefaultAnswerPrompt
-  #   answer_instruction_list: [Default]
-  # DeleteModel:
-  #   iterations: 5
-  #   files:
-  #     - delete_model.ps1
-  #   question_prompt: WithFileName
-  #   generate_question_list: [CodingList]
-  #   question_instruction_list: [ToneInstructions]
-  #   file_header: DefaultFileHeader
-  #   answer_prompt: DefaultAnswerPrompt
-  #   answer_instruction_list: [Default]
-  # BuildImage:
-  #   iterations: 5
-  #   question_prompt: WithFileName
-  #   generate_question_list: [CodingList, DocumentList]
-  #   question_instruction_list: [ToneInstructions]
-  #   file_header: DefaultFileHeader
-  #   answer_prompt: DefaultAnswerPrompt
-  #   answer_instruction_list: [Default]
-  #   files:
-  #     - build_image.ps1
-  #     - dockerfile
-  #     - supervisord.conf
-  # TrainTorchTune:
-  #   iterations: 5
-  #   question_prompt: WithFileName
-  #   generate_question_list: [CodingList]
-  #   question_instruction_list: [ToneInstructions]
-  #   file_header: DefaultFileHeader
-  #   answer_prompt: DefaultAnswerPrompt
-  #   answer_instruction_list: [Default]
-  #   files:
-  #     - train_model_torchtune.ps1
-  #     - merge_lora.py
-  #     - convert_jsonl_to_json.py
-  # TrainUnsloth:
-  #   iterations: 5
-  #   question_prompt: WithFileName
-  #   generate_question_list: [CodingList]
-  #   question_instruction_list: [ToneInstructions]
-  #   file_header: DefaultFileHeader
-  #   answer_prompt: DefaultAnswerPrompt
-  #   answer_instruction_list: [Default]
-  #   files:
-  #     - train_model_unsloth.ps1
-  #     - train.py
-  # InstallModel:
-  #   iterations: 5
-  #   question_prompt: WithFileName
-  #   generate_question_list: [CodingList]
-  #   question_instruction_list: [ToneInstructions]
-  #   file_header: DefaultFileHeader
-  #   answer_prompt: DefaultAnswerPrompt
-  #   answer_instruction_list: [Default]
-  #   files:
-  #     - install_model.ps1
-  # ListModels:
-  #   iterations: 5
-  #   question_prompt: WithFileName
-  #   generate_question_list: [CodingList]
-  #   question_instruction_list: [ToneInstructions]
-  #   file_header: DefaultFileHeader
-  #   answer_prompt: DefaultAnswerPrompt
-  #   answer_instruction_list: [Default]
-  #   files:
-  #     - list_models.ps1
-  # FineTuningGuide:
-  #   iterations: 5
-  #   question_prompt: NoFileName
-  #   generate_question_list: [DocumentList]
-  #   question_instruction_list: [ToneInstructions]
-  #   file_header: DefaultFileHeader
-  #   answer_prompt: DefaultAnswerPrompt
-  #   answer_instruction_list: [Default]
-  #   files:
-  #     - FineTuningGuide.md
+  UninstallModel:
+    iterations: 10
+    files:
+      - uninstall_model.ps1
+    question_prompt: WithFileName
+    generate_question_list: [CodingList]
+    question_instruction_list: [ToneInstructions]
+    file_header: DefaultFileHeader
+    answer_prompt: DefaultAnswerPrompt
+    answer_instruction_list: [Default]
+  README:
+    iterations: 30
+    files:
+      - README.md
+    question_prompt: NoFileName
+    generate_question_list: [DocumentList]
+    question_instruction_list: [ToneInstructions]
+    file_header: DefaultFileHeader
+    answer_prompt: DefaultAnswerPrompt
+    answer_instruction_list: [Default]
+  DeleteModel:
+    iterations: 10
+    files:
+      - delete_model.ps1
+    question_prompt: WithFileName
+    generate_question_list: [CodingList]
+    question_instruction_list: [ToneInstructions]
+    file_header: DefaultFileHeader
+    answer_prompt: DefaultAnswerPrompt
+    answer_instruction_list: [Default]
+  BuildImage:
+    iterations: 10
+    question_prompt: WithFileName
+    generate_question_list: [CodingList, DocumentList]
+    question_instruction_list: [ToneInstructions]
+    file_header: DefaultFileHeader
+    answer_prompt: DefaultAnswerPrompt
+    answer_instruction_list: [Default]
+    files:
+      - build_image.ps1
+      - dockerfile
+      - supervisord.conf
+  TrainTorchTune:
+    iterations: 10
+    question_prompt: WithFileName
+    generate_question_list: [CodingList]
+    question_instruction_list: [ToneInstructions]
+    file_header: DefaultFileHeader
+    answer_prompt: DefaultAnswerPrompt
+    answer_instruction_list: [Default]
+    files:
+      - train_model_torchtune.ps1
+      - merge_lora.py
+      - convert_jsonl_to_json.py
+  TrainUnsloth:
+    iterations: 10
+    question_prompt: WithFileName
+    generate_question_list: [CodingList]
+    question_instruction_list: [ToneInstructions]
+    file_header: DefaultFileHeader
+    answer_prompt: DefaultAnswerPrompt
+    answer_instruction_list: [Default]
+    files:
+      - train_model_unsloth.ps1
+      - train.py
+  InstallModel:
+    iterations: 10
+    question_prompt: WithFileName
+    generate_question_list: [CodingList]
+    question_instruction_list: [ToneInstructions]
+    file_header: DefaultFileHeader
+    answer_prompt: DefaultAnswerPrompt
+    answer_instruction_list: [Default]
+    files:
+      - install_model.ps1
+  ListModels:
+    iterations: 10
+    question_prompt: WithFileName
+    generate_question_list: [CodingList]
+    question_instruction_list: [ToneInstructions]
+    file_header: DefaultFileHeader
+    answer_prompt: DefaultAnswerPrompt
+    answer_instruction_list: [Default]
+    files:
+      - list_models.ps1
+  FineTuningGuide:
+    iterations: 10
+    question_prompt: NoFileName
+    generate_question_list: [DocumentList]
+    question_instruction_list: [ToneInstructions]
+    file_header: DefaultFileHeader
+    answer_prompt: DefaultAnswerPrompt
+    answer_instruction_list: [Default]
+    files:
+      - FineTuningGuide.md
   GenerateTrainingDataGuide:
-    iterations: 3
+    iterations: 30
     question_prompt: NoFileName
     generate_question_list: [DocumentList]
     question_instruction_list: [ToneInstructions]
