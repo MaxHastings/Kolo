@@ -2,20 +2,18 @@ import os
 import json
 import re
 import glob
+import argparse
 
 from SyntheticDataGeneration.TextParser import TextParser
 from SyntheticDataGeneration.Utils import Utils  # Import the Utils class with the logger
 
-# Adjust these paths as needed.
-BASE_OUTPUT_DIR = "/var/kolo_data/qa_generation_output"
-QUESTIONS_DIR = os.path.join(BASE_OUTPUT_DIR, "questions")
-ANSWERS_DIR = os.path.join(BASE_OUTPUT_DIR, "answers")
+# OUTPUT_FILE path remains unchanged.
 OUTPUT_FILE = "/app/data.jsonl"
 
-def pair_questions_and_answers():
+def pair_questions_and_answers(questions_dir, answers_dir):
     """
-    Looks for all question files in the QUESTIONS_DIR and then for each question,
-    pairs it with the corresponding answer files from ANSWERS_DIR.
+    Looks for all question files in the questions_dir and then for each question,
+    pairs it with the corresponding answer files from answers_dir.
 
     Assumes the new naming convention:
       - Questions: questions_{group_name}_seed{q_seed_idx}_instr{instr_idx}.txt
@@ -27,8 +25,8 @@ def pair_questions_and_answers():
     group_stats = {}  # { identifier: {'questions': count, 'answers': count} }
 
     # Process each question file.
-    for q_filename in os.listdir(QUESTIONS_DIR):
-        q_filepath = os.path.join(QUESTIONS_DIR, q_filename)
+    for q_filename in os.listdir(questions_dir):
+        q_filepath = os.path.join(questions_dir, q_filename)
         Utils.logger.info(f"Processing question file: {q_filepath}")
 
         # Expect filenames like: questions_{group_name}_seed{q_seed_idx}_instr{instr_idx}.txt
@@ -56,7 +54,7 @@ def pair_questions_and_answers():
         for idx, question in enumerate(questions, start=1):
             Utils.logger.info(f"Processing question {idx} in file: {q_filename}")
             pattern = os.path.join(
-                ANSWERS_DIR,
+                answers_dir,
                 f"answer_{group_name}_seed{q_seed_idx}_instr{instr_idx}_q{idx}_*.txt"
             )
             matching_files = glob.glob(pattern)
@@ -81,7 +79,22 @@ def pair_questions_and_answers():
     return qa_pairs, group_stats
 
 def main():
-    qa_pairs, group_stats = pair_questions_and_answers()
+    # Use argparse to allow passing qa_generation_output as an optional argument.
+    parser = argparse.ArgumentParser(description="Pair QA files and generate a JSONL output.")
+    parser.add_argument(
+        "--qa_output", 
+        type=str, 
+        default="qa_generation_output",
+        help="Base directory for QA generation output. Default is 'qa_generation_output'."
+    )
+    args = parser.parse_args()
+
+    # Set directories based on the provided base output directory.
+    base_output_dir = args.qa_output
+    questions_dir = os.path.join(base_output_dir, "questions")
+    answers_dir = os.path.join(base_output_dir, "answers")
+
+    qa_pairs, group_stats = pair_questions_and_answers(questions_dir, answers_dir)
     
     if not qa_pairs:
         Utils.logger.info("No QA pairs found.")

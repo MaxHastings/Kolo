@@ -6,11 +6,11 @@ global:
 
 providers:
   question:
-    provider: openai # Use "ollama" or "openai"
-    model: gpt-4o-mini
+    provider: ollama # Use "ollama" or "openai"
+    model: KoloLLM8B-Round2
   answer:
-    provider: openai # Use "ollama" or "openai"
-    model: gpt-4o-mini
+    provider: ollama # Use "ollama" or "openai"
+    model: KoloLLM8B-Round2
 
 QuestionInstructionList:
   - name: 'CasualandFormal'
@@ -45,6 +45,7 @@ AnswerPrompt:
   - name: 'DefaultAnswerPrompt'
     description: |
       {file_content}
+      ---
       {instruction}
       {question}
 

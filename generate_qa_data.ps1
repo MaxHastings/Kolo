@@ -2,12 +2,12 @@
 .SYNOPSIS
     Runs the generate_qa_data.py script inside the kolo_container Docker container.
 .DESCRIPTION
-    This script optionally accepts an OpenAI API key as well as group and answer worker parameters,
-    sets the API key as an environment variable inside the container, and passes the worker parameters
+    This script optionally accepts an OpenAI API key as well as worker parameters, a model string, and an output directory,
+    sets the API key as an environment variable inside the container, and passes the worker, model, and output directory parameters
     to the Python script.
 .EXAMPLE
-    .\generate_qa_data.ps1 -OpenAI_API_KEY "your_api_key_here" -GroupWorkers 8 -AnswerWorkers 4
-    .\generate_qa_data.ps1 -GroupWorkers 8 -AnswerWorkers 4
+    .\generate_qa_data.ps1 -OpenAI_API_KEY "your_api_key_here" -Threads 8 -Model "your_model" -qa_outputDir "/path/to/output"
+    .\generate_qa_data.ps1 -Threads 8 -Model "your_model" -qa_outputDir "/path/to/output"
 #>
 
 [CmdletBinding()]
@@ -16,7 +16,13 @@ param(
     [string]$OpenAI_API_KEY,
     
     [Parameter(Mandatory = $false, HelpMessage = "Max workers for processing.")]
-    [int]$Threads = 8
+    [int]$Threads = 8,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Directory to output QA results.")]
+    [string]$qa_outputDir,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Model string to pass to the Python script.")]
+    [string]$Model
 )
 
 # Define the container name
@@ -30,8 +36,18 @@ if (-Not $containerRunning) {
     exit 1
 }
 
-# Build the command string to execute inside the container.
+# Build the base command string to execute inside the container.
 $baseCommand = "source /opt/conda/bin/activate kolo_env && python /app/generate_qa_data.py --threads $Threads"
+
+# Append the model argument if provided
+if ($Model) {
+    $baseCommand += " --model $Model"
+}
+
+# Append the qa_outputDir argument if provided
+if ($qa_outputDir) {
+    $baseCommand += " --qa_outputDir $qa_outputDir"
+}
 
 if ($OpenAI_API_KEY) {
     $command = "export OPENAI_API_KEY='$OpenAI_API_KEY'; $baseCommand"

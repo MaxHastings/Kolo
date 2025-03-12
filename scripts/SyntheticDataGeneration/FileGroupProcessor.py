@@ -1,3 +1,5 @@
+# SyntheticDataGeneration/FileGroupProcessor.py
+
 import os
 import re
 import yaml
@@ -8,7 +10,7 @@ import logging
 import random
 import time
 from pathlib import Path
-from typing import Optional, List, Dict, Any
+from typing import Dict, Any, List
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from SyntheticDataGeneration.ApiClient import APIClient
@@ -24,6 +26,7 @@ class FileGroupProcessor:
         config: Dict[str, Any],
         full_base_dir: Path,
         output_base_path: Path,
+        qa_output: str,  # New parameter for QA output folder name
         question_api_client: APIClient,
         answer_api_client: APIClient,
         thread_count: int,
@@ -34,6 +37,7 @@ class FileGroupProcessor:
         self.config = config
         self.full_base_dir = full_base_dir
         self.output_base_path = output_base_path
+        self.qa_output = qa_output
         self.question_api_client = question_api_client
         self.answer_api_client = answer_api_client
         self.thread_count = thread_count
@@ -47,10 +51,10 @@ class FileGroupProcessor:
         self.answer_instruction_lists = config.get("AnswerInstructionList", [])
         self.generate_question_lists = config.get("GenerateQuestionLists", [])
 
-        # Prepare output directories
-        self.questions_dir = self.output_base_path / "qa_generation_output" / "questions"
-        self.answers_dir = self.output_base_path / "qa_generation_output" / "answers"
-        self.debug_dir = self.output_base_path / "qa_generation_output" / "debug"
+        # Prepare output directories using the passed qa_output folder name
+        self.questions_dir = self.output_base_path / self.qa_output / "questions"
+        self.answers_dir = self.output_base_path / self.qa_output / "answers"
+        self.debug_dir = self.output_base_path / self.qa_output / "debug"
         for d in [self.questions_dir, self.answers_dir, self.debug_dir]:
             d.mkdir(parents=True, exist_ok=True)
 
