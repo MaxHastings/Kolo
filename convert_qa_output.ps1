@@ -21,7 +21,7 @@ $envActivate = "source /opt/conda/bin/activate kolo_env"
 # Step 1: Run parse_qa_data.py inside the container with the custom input directory
 try {
     Write-Host "Running parse_qa_data.py in container $containerName with input directory $inputDirContainer..."
-    $parseCmd = "$envActivate && python /app/parse_qa_data.py --qa_output $inputDirContainer --output_file $qaJsonlFile"
+    $parseCmd = "$envActivate && python /app/parse_qa_data.py --qa_output $inputDirHost"
     docker exec -it $containerName bash -c $parseCmd
 
     if ($LASTEXITCODE -eq 0) {

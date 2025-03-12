@@ -46,7 +46,7 @@ if ($Model) {
 
 # Append the qa_outputDir argument if provided
 if ($qa_outputDir) {
-    $baseCommand += " --qa_outputDir $qa_outputDir"
+    $baseCommand += " --qa_output $qa_outputDir"
 }
 
 if ($OpenAI_API_KEY) {

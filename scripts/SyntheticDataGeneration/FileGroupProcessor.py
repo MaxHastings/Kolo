@@ -10,7 +10,7 @@ import logging
 import random
 import time
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from SyntheticDataGeneration.ApiClient import APIClient
