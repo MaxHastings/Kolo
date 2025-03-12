@@ -63,7 +63,7 @@ class APIClient:
             attempt = 0
             while attempt <= max_retries:
                 try:
-                    response = requests.post(self.global_ollama_url, json=payload)
+                    response = requests.post(self.global_ollama_url, json=payload, timeout=60)
                     response.raise_for_status()
                     result = response.json()
                     return result.get("response", "").strip()
