@@ -49,7 +49,7 @@ for ($i = 1; $i -le $Rounds; $i++) {
     # Build the relative train output directory and then the full path.
     $trainOutputDir = "$TrainOutputPrefix" + "rev$i"
     $fullTrainOutputDir = "$basePath/$trainOutputDir"
-
+    
     # --- Check if the fine-tuned model is already installed ---
     $cmdList = "docker exec kolo_container ollama list"
     Write-Output "Checking installed models in Ollama..."
@@ -61,26 +61,39 @@ for ($i = 1; $i -le $Rounds; $i++) {
         continue
     }
 
-    # Step 1: Generate QA Data using the current model.
-    $cmdGenerate = "./generate_qa_data.ps1 -Threads 1 -qa_outputDir `"$qaOutputDir`" -Model `"$currentModel`""
-    Run-CommandWithRetry -Command $cmdGenerate
-
-    # Step 2: Convert QA Output.
-    $cmdConvert = ".\convert_qa_output.ps1 -qa_outputDir `"$qaOutputDir`""
-    Run-CommandWithRetry -Command $cmdConvert
-
-    # Step 3: Train the model.
-    # Check if there is any epoch folder (e.g., epoch_1, epoch_2, etc.) in the train output directory inside the docker container.
-    $useCheckpoint = ""
-    Write-Output "Checking for epoch folder inside docker container in $fullTrainOutputDir"
-    $dockerCmd = "docker exec kolo_container bash -c 'ls -d $fullTrainOutputDir/epoch_* 2>/dev/null'"
-    $epochFolders = Invoke-Expression $dockerCmd
-    if ($epochFolders -and $epochFolders.Trim() -ne "") {
-        $useCheckpoint = " -UseCheckpoint"
+    # --- Check inside the docker container for the model file ---
+    $dockerCheckCmd = "docker exec kolo_container bash -c 'if [ -f ""$fullTrainOutputDir/ModelfileQ4_K_M"" ]; then echo exists; fi'"
+    $fileCheckOutput = Invoke-Expression $dockerCheckCmd
+    if ($fileCheckOutput -match "exists") {
+        Write-Output "Model file found inside docker container at '$fullTrainOutputDir/ModelfileQ4_K_M'. Skipping training steps and proceeding to install model."
+        $skipTraining = $true
     }
-    
-    $cmdTrain = "./train_model_torchtune.ps1 -OutputDir `"$trainOutputDir`" -Quantization `"Q4_K_M`" -TrainData `"data.json`" -HfToken `"$HfToken`" -LearningRate 2e-4 -Epochs 3 -BaseModel `"Meta-llama/Llama-3.1-8B-Instruct`" -MaxSeqLength 2048 -BatchSize 1$useCheckpoint"
-    Run-CommandWithRetry -Command $cmdTrain
+    else {
+        $skipTraining = $false
+    }
+
+    if (-not $skipTraining) {
+        # Step 1: Generate QA Data using the current model.
+        $cmdGenerate = "./generate_qa_data.ps1 -Threads 1 -qa_outputDir `"$qaOutputDir`" -Model `"$currentModel`""
+        Run-CommandWithRetry -Command $cmdGenerate
+
+        # Step 2: Convert QA Output.
+        $cmdConvert = ".\convert_qa_output.ps1 -qa_outputDir `"$qaOutputDir`""
+        Run-CommandWithRetry -Command $cmdConvert
+
+        # Step 3: Train the model.
+        # Check if there is any epoch folder (e.g., epoch_1, epoch_2, etc.) in the train output directory inside the docker container.
+        $useCheckpoint = ""
+        Write-Output "Checking for epoch folder inside docker container in $fullTrainOutputDir"
+        $dockerCmd = "docker exec kolo_container bash -c 'ls -d $fullTrainOutputDir/epoch_* 2>/dev/null'"
+        $epochFolders = Invoke-Expression $dockerCmd
+        if ($epochFolders -and $epochFolders.Trim() -ne "") {
+            $useCheckpoint = " -UseCheckpoint"
+        }
+        
+        $cmdTrain = "./train_model_torchtune.ps1 -OutputDir `"$trainOutputDir`" -Quantization `"Q4_K_M`" -TrainData `"data.json`" -HfToken `"$HfToken`" -LearningRate 2e-4 -Epochs 3 -BaseModel `"Meta-llama/Llama-3.1-8B-Instruct`" -MaxSeqLength 2048 -BatchSize 1$useCheckpoint"
+        Run-CommandWithRetry -Command $cmdTrain
+    }
 
     # Step 4: Install the model.
     $cmdInstall = ".\install_model.ps1 `"$trainOutputDir`" -Tool `"torchtune`" -OutputDir `"$trainOutputDir`" -Quantization `"Q4_K_M`""
