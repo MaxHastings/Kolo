@@ -5,37 +5,14 @@ global:
   ollama_url: http://localhost:11434/api/generate
 
 providers:
-  question:
-    provider: ollama # Use "ollama" or "openai"
-    model: KoloLLM8B-Round2
   answer:
     provider: ollama # Use "ollama" or "openai"
-    model: KoloLLM8B-Round2
-
-QuestionInstructionList:
-  - name: 'CasualandFormal'
-    instruction:
-      - 'For each question you generate write casually.'
-      - 'For each question you generate write like a developer.'
-      - 'For each question you generate write like a noob.'
-      - 'For each question you generate write with a lot of detail.'
+    model: KoloLLM8B-Round3
 
 AnswerInstructionList:
   - name: 'Default'
     instruction:
       - ''
-
-GenerateQuestionLists:
-  - name: 'DocumentList'
-    questions:
-      - 'Based on the following, generate a list of questions where the user requests for a custom thing. Be elaborate and specific.'
-      - 'Based on the following, generate a list of questions where the user asks how to use different things.'
-      - 'Based on the following, generate a list of questions where the user asks about different parts.'
-      - 'Based on the following, generate a list of questions where the user asks to understand the concepts.'
-  - name: 'CodingList'
-    questions:
-      - 'Based on the following, generate a list of questions where a user wants to learn the various ways on how to use the code.'
-      - 'Based on the following, generate a list of questions where the user wants to know what a specific thing happens in the code.'
 
 FileHeaders:
   - name: 'DefaultFileHeader'
@@ -45,136 +22,113 @@ AnswerPrompt:
   - name: 'DefaultAnswerPrompt'
     description: |
       {file_content}
-      ---
       {instruction}
       {question}
-
-QuestionPrompt:
-  - name: 'NoFileName'
-    description: |
-      {generate_question}
-      {instruction}
-      {file_content}
-      Use the following output format:
-        1. <question 1>
-        2. <question 2>
-        3. <question 3>
-      etc.
-  - name: 'WithFileName'
-    description: |
-      {generate_question}
-      {instruction}
-      {file_content}
-      Use the following output format.
-        1. <question 1>
-        2. <question 2>
-        3. <question 3>
-      etc.
-      You are required to reference {file_name_list} for every single question that you generate!
 
 file_groups:
   UninstallModel:
     iterations: 3
     files:
       - uninstall_model.ps1
-    question_prompt: WithFileName
-    generate_question_list: [CodingList]
-    question_instruction_list: [CasualandFormal]
     file_header: DefaultFileHeader
     answer_prompt: DefaultAnswerPrompt
     answer_instruction_list: [Default]
-  README:
-    iterations: 5
-    files:
-      - README.md
-    question_prompt: NoFileName
-    generate_question_list: [DocumentList]
-    question_instruction_list: [CasualandFormal]
-    file_header: DefaultFileHeader
-    answer_prompt: DefaultAnswerPrompt
-    answer_instruction_list: [Default]
-  DeleteModel:
-    iterations: 3
-    files:
-      - delete_model.ps1
-    question_prompt: WithFileName
-    generate_question_list: [CodingList]
-    question_instruction_list: [CasualandFormal]
-    file_header: DefaultFileHeader
-    answer_prompt: DefaultAnswerPrompt
-    answer_instruction_list: [Default]
-  BuildImage:
-    iterations: 3
-    question_prompt: WithFileName
-    generate_question_list: [CodingList, DocumentList]
-    question_instruction_list: [CasualandFormal]
-    file_header: DefaultFileHeader
-    answer_prompt: DefaultAnswerPrompt
-    answer_instruction_list: [Default]
-    files:
-      - build_image.ps1
-      - dockerfile
-      - supervisord.conf
-  TrainTorchTune:
-    iterations: 3
-    question_prompt: WithFileName
-    generate_question_list: [CodingList]
-    question_instruction_list: [CasualandFormal]
-    file_header: DefaultFileHeader
-    answer_prompt: DefaultAnswerPrompt
-    answer_instruction_list: [Default]
-    files:
-      - train_model_torchtune.ps1
-      - merge_lora.py
-      - convert_jsonl_to_json.py
-  TrainUnsloth:
-    iterations: 3
-    question_prompt: WithFileName
-    generate_question_list: [CodingList]
-    question_instruction_list: [CasualandFormal]
-    file_header: DefaultFileHeader
-    answer_prompt: DefaultAnswerPrompt
-    answer_instruction_list: [Default]
-    files:
-      - train_model_unsloth.ps1
-      - train.py
-  InstallModel:
-    iterations: 3
-    question_prompt: WithFileName
-    generate_question_list: [CodingList]
-    question_instruction_list: [CasualandFormal]
-    file_header: DefaultFileHeader
-    answer_prompt: DefaultAnswerPrompt
-    answer_instruction_list: [Default]
-    files:
-      - install_model.ps1
-  ListModels:
-    iterations: 3
-    question_prompt: WithFileName
-    generate_question_list: [CodingList]
-    question_instruction_list: [CasualandFormal]
-    file_header: DefaultFileHeader
-    answer_prompt: DefaultAnswerPrompt
-    answer_instruction_list: [Default]
-    files:
-      - list_models.ps1
-  FineTuningGuide:
-    iterations: 5
-    question_prompt: NoFileName
-    generate_question_list: [DocumentList]
-    question_instruction_list: [CasualandFormal]
-    file_header: DefaultFileHeader
-    answer_prompt: DefaultAnswerPrompt
-    answer_instruction_list: [Default]
-    files:
-      - FineTuningGuide.md
-  GenerateTrainingDataGuide:
-    iterations: 5
-    question_prompt: NoFileName
-    generate_question_list: [DocumentList]
-    question_instruction_list: [CasualandFormal]
-    file_header: DefaultFileHeader
-    answer_prompt: DefaultAnswerPrompt
-    answer_instruction_list: [Default]
-    files:
-      - GenerateTrainingDataGuide.md
+    question_list:
+      - 'What does the uninstall model script do exactly?'
+      - 'How do I use the uninstall_model.ps1 script?'
+      - 'Which service does uninstall model script use?'
+  # README:
+  #   iterations: 5
+  #   files:
+  #     - README.md
+  #   question_prompt: NoFileName
+  #   generate_question_list: [DocumentList]
+  #   question_instruction_list: [CasualandFormal]
+  #   file_header: DefaultFileHeader
+  #   answer_prompt: DefaultAnswerPrompt
+  #   answer_instruction_list: [Default]
+  # DeleteModel:
+  #   iterations: 3
+  #   files:
+  #     - delete_model.ps1
+  #   question_prompt: WithFileName
+  #   generate_question_list: [CodingList]
+  #   question_instruction_list: [CasualandFormal]
+  #   file_header: DefaultFileHeader
+  #   answer_prompt: DefaultAnswerPrompt
+  #   answer_instruction_list: [Default]
+  # BuildImage:
+  #   iterations: 3
+  #   question_prompt: WithFileName
+  #   generate_question_list: [CodingList, DocumentList]
+  #   question_instruction_list: [CasualandFormal]
+  #   file_header: DefaultFileHeader
+  #   answer_prompt: DefaultAnswerPrompt
+  #   answer_instruction_list: [Default]
+  #   files:
+  #     - build_image.ps1
+  #     - dockerfile
+  #     - supervisord.conf
+  # TrainTorchTune:
+  #   iterations: 3
+  #   question_prompt: WithFileName
+  #   generate_question_list: [CodingList]
+  #   question_instruction_list: [CasualandFormal]
+  #   file_header: DefaultFileHeader
+  #   answer_prompt: DefaultAnswerPrompt
+  #   answer_instruction_list: [Default]
+  #   files:
+  #     - train_model_torchtune.ps1
+  #     - merge_lora.py
+  #     - convert_jsonl_to_json.py
+  # TrainUnsloth:
+  #   iterations: 3
+  #   question_prompt: WithFileName
+  #   generate_question_list: [CodingList]
+  #   question_instruction_list: [CasualandFormal]
+  #   file_header: DefaultFileHeader
+  #   answer_prompt: DefaultAnswerPrompt
+  #   answer_instruction_list: [Default]
+  #   files:
+  #     - train_model_unsloth.ps1
+  #     - train.py
+  # InstallModel:
+  #   iterations: 3
+  #   question_prompt: WithFileName
+  #   generate_question_list: [CodingList]
+  #   question_instruction_list: [CasualandFormal]
+  #   file_header: DefaultFileHeader
+  #   answer_prompt: DefaultAnswerPrompt
+  #   answer_instruction_list: [Default]
+  #   files:
+  #     - install_model.ps1
+  # ListModels:
+  #   iterations: 3
+  #   question_prompt: WithFileName
+  #   generate_question_list: [CodingList]
+  #   question_instruction_list: [CasualandFormal]
+  #   file_header: DefaultFileHeader
+  #   answer_prompt: DefaultAnswerPrompt
+  #   answer_instruction_list: [Default]
+  #   files:
+  #     - list_models.ps1
+  # FineTuningGuide:
+  #   iterations: 5
+  #   question_prompt: NoFileName
+  #   generate_question_list: [DocumentList]
+  #   question_instruction_list: [CasualandFormal]
+  #   file_header: DefaultFileHeader
+  #   answer_prompt: DefaultAnswerPrompt
+  #   answer_instruction_list: [Default]
+  #   files:
+  #     - FineTuningGuide.md
+  # GenerateTrainingDataGuide:
+  #   iterations: 5
+  #   question_prompt: NoFileName
+  #   generate_question_list: [DocumentList]
+  #   question_instruction_list: [CasualandFormal]
+  #   file_header: DefaultFileHeader
+  #   answer_prompt: DefaultAnswerPrompt
+  #   answer_instruction_list: [Default]
+  #   files:
+  #     - GenerateTrainingDataGuide.md

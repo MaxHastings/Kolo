@@ -27,29 +27,18 @@ class QAGeneratorEngine:
         self.global_ollama_url = global_config.get("ollama_url", "http://localhost:11434/api/generate")
         self.file_groups_config = config.get("file_groups", {})
 
-        # Providers configuration
-        question_provider_config = config.get("providers", {}).get("question", {})
+        # Only answer provider is needed now
         answer_provider_config = config.get("providers", {}).get("answer", {})
 
         openai_client = None
-        if (question_provider_config.get("provider", "").lower() == "openai" or
-            answer_provider_config.get("provider", "").lower() == "openai"):
+        if answer_provider_config.get("provider", "").lower() == "openai":
             if OpenAI is None:
                 Utils.logger.error("OpenAI client cannot be initialized because the package is missing.")
             else:
                 api_key = os.environ.get("OPENAI_API_KEY")
                 openai_client = OpenAI(api_key=api_key)
 
-        # If a model override is provided, use it for both providers; otherwise use config values.
-        question_model = model_override if model_override is not None else question_provider_config.get("model", "")
         answer_model = model_override if model_override is not None else answer_provider_config.get("model", "")
-
-        self.question_api_client = APIClient(
-            provider=question_provider_config.get("provider", ""),
-            model=question_model,
-            global_ollama_url=self.global_ollama_url,
-            openai_client=openai_client
-        )
         self.answer_api_client = APIClient(
             provider=answer_provider_config.get("provider", ""),
             model=answer_model,
@@ -74,7 +63,6 @@ class QAGeneratorEngine:
         with ThreadPoolExecutor(max_workers=self.thread_count) as executor:
             futures = []
             for group_name, group_conf in expanded_groups.items():
-                # Pass qa_output to the FileGroupProcessor
                 processor = FileGroupProcessor(
                     group_name=group_name,
                     group_config=group_conf,
@@ -82,7 +70,6 @@ class QAGeneratorEngine:
                     full_base_dir=self.full_base_dir,
                     output_base_path=self.output_base_path,
                     qa_output=self.qa_output,
-                    question_api_client=self.question_api_client,
                     answer_api_client=self.answer_api_client,
                     thread_count=self.thread_count,
                     file_manager=self.file_manager
