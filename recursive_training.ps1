@@ -1,5 +1,3 @@
-# .\recursive_training.ps1 -Rounds 3 -StartingModel "llama3.2" -QAOutputPrefix "test_output_" -TrainOutputPrefix "Test_" -HfToken "your_hf_token_here"
-
 param (
     [Parameter(Mandatory = $true)]
     [int]$Rounds,
@@ -16,6 +14,9 @@ param (
     [Parameter(Mandatory = $true)]
     [string]$HfToken
 )
+
+# Base path for training outputs
+$basePath = "/var/kolo_data/torchtune"
 
 function Run-CommandWithRetry {
     param (
@@ -43,12 +44,14 @@ $currentModel = $StartingModel
 for ($i = 1; $i -le $Rounds; $i++) {
     Write-Output "=== Starting training round $i ==="
 
-    # Define output directories based on the current round and user-specified prefixes
+    # Define output directories based on the current round and user-specified prefixes.
     $qaOutputDir = "$QAOutputPrefix" + "rev$i"
+    # Build the relative train output directory and then the full path.
     $trainOutputDir = "$TrainOutputPrefix" + "rev$i"
+    $fullTrainOutputDir = "$basePath/$trainOutputDir"
 
     # Step 1: Generate QA Data using the current model.
-    $cmdGenerate = "./generate_qa_data.ps1 -Threads 8 -qa_outputDir `"$qaOutputDir`" -Model `"$currentModel`""
+    $cmdGenerate = "./generate_qa_data.ps1 -Threads 1 -qa_outputDir `"$qaOutputDir`" -Model `"$currentModel`""
     Run-CommandWithRetry -Command $cmdGenerate
 
     # Step 2: Convert QA Output.
@@ -56,11 +59,20 @@ for ($i = 1; $i -le $Rounds; $i++) {
     Run-CommandWithRetry -Command $cmdConvert
 
     # Step 3: Train the model.
-    $cmdTrain = "./train_model_torchtune.ps1 -OutputDir `"$trainOutputDir`" -Quantization `"Q4_K_M`" -TrainData `"data.json`" -HfToken `"$HfToken`" -LearningRate 2e-4 -Epochs 3 -BaseModel `"Meta-llama/Llama-3.1-8B-Instruct`" -MaxSeqLength 2048 -BatchSize 1"
+    # Check if there is any epoch folder (e.g., epoch_1, epoch_2, etc.) in the train output directory inside the docker container.
+    $useCheckpoint = ""
+    Write-Output "Checking for epoch folder inside docker container in $fullTrainOutputDir"
+    $dockerCmd = "docker exec kolo_container bash -c 'ls -d $fullTrainOutputDir/epoch_* 2>/dev/null'"
+    $epochFolders = Invoke-Expression $dockerCmd
+    if ($epochFolders -and $epochFolders.Trim() -ne "") {
+        $useCheckpoint = " -UseCheckpoint"
+    }
+    
+    $cmdTrain = "./train_model_torchtune.ps1 -OutputDir `"$trainOutputDir`" -Quantization `"Q4_K_M`" -TrainData `"data.json`" -HfToken `"$HfToken`" -LearningRate 2e-4 -Epochs 3 -BaseModel `"Meta-llama/Llama-3.1-8B-Instruct`" -MaxSeqLength 2048 -BatchSize 1$useCheckpoint"
     Run-CommandWithRetry -Command $cmdTrain
 
     # Step 4: Install the model.
-    $cmdInstall = ".\install_model.ps1 `"$trainOutputDir`" -Tool `"torchtune`" -OutputDir `"$trainOutputDir`""
+    $cmdInstall = ".\install_model.ps1 `"$trainOutputDir`" -Tool `"torchtune`" -OutputDir `"$trainOutputDir`" -Quantization `"Q4_K_M`""
     Run-CommandWithRetry -Command $cmdInstall
 
     # Update the current model for the next round.

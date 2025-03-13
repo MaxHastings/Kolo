@@ -7,7 +7,7 @@ global:
 providers:
   answer:
     provider: ollama # Use "ollama" or "openai"
-    model: KoloLLM8B-Round3
+    model: gpt-4o-mini
 
 AnswerInstructionList:
   - name: 'Default'
@@ -27,60 +27,360 @@ AnswerPrompt:
 
 file_groups:
   UninstallModel:
-    iterations: 3
+    iterations: 1
     files:
       - uninstall_model.ps1
     file_header: DefaultFileHeader
     answer_prompt: DefaultAnswerPrompt
     answer_instruction_list: [Default]
     question_list:
-      - 'What does the uninstall model script do exactly?'
-      - 'How do I use the uninstall_model.ps1 script?'
-      - 'Which service does uninstall model script use?'
-  # README:
-  #   iterations: 5
+      - 'What happens when I run the uninstall_model.ps1 script?'
+      - 'How does the uninstall_model.ps1 script function?'
+      - 'What is the purpose of the uninstall_model.ps1 script?'
+      - 'Which operations does the uninstall_model.ps1 script perform?'
+      - 'How can I remove a model using uninstall_model.ps1?'
+  #     - 'What arguments does the uninstall_model.ps1 script require?'
+  #     - 'How do I specify the model name in uninstall_model.ps1?'
+  #     - 'Can I run uninstall_model.ps1 without a model name?'
+  #     - 'What error messages can uninstall_model.ps1 produce?'
+  #     - 'How does uninstall_model.ps1 interact with Docker?'
+  #     - 'Which Docker container does uninstall_model.ps1 use?'
+  #     - 'Does uninstall_model.ps1 check if the container is running?'
+  #     - 'How does uninstall_model.ps1 verify that a model was removed?'
+  #     - 'What command does uninstall_model.ps1 use to delete a model?'
+  #     - 'How does uninstall_model.ps1 call the Ollama rm command?'
+  #     - 'Can I modify uninstall_model.ps1 to use a different container?'
+  #     - 'Does uninstall_model.ps1 support multiple model removals?'
+  #     - 'How do I handle errors in uninstall_model.ps1?'
+  #     - 'What does the try-catch block do in uninstall_model.ps1?'
+  #     - 'What exit codes does uninstall_model.ps1 return?'
+  #     - 'How does uninstall_model.ps1 output success and failure messages?'
+  #     - 'Does uninstall_model.ps1 require administrative privileges?'
+  #     - 'What PowerShell version is required to run uninstall_model.ps1?'
+  #     - 'Can I run uninstall_model.ps1 on Linux with PowerShell Core?'
+  #     - 'What changes should I make to uninstall_model.ps1 for a different container name?'
+  #     - 'How do I debug issues in uninstall_model.ps1?'
+  #     - 'Can I log output from uninstall_model.ps1 to a file?'
+  #     - 'Is uninstall_model.ps1 safe to run multiple times?'
+  #     - 'Can I modify uninstall_model.ps1 to prompt before deleting a model?'
+  #     - 'How can I test uninstall_model.ps1 before running it on production?'
+  #     - 'What dependencies does uninstall_model.ps1 require?'
+  #     - 'Does uninstall_model.ps1 support wildcards for model names?'
+  #     - 'Can I adapt uninstall_model.ps1 to remove other types of files?'
+  #     - 'How can I automate uninstall_model.ps1 with a scheduled task?'
+  #     - 'What is the best way to extend uninstall_model.ps1 for logging?'
+  #     - 'How do I add user prompts to uninstall_model.ps1?'
+  #     - 'What changes are needed to make uninstall_model.ps1 more secure?'
+  #     - 'How do I modify uninstall_model.ps1 to remove multiple models at once?'
+  #     - 'Can uninstall_model.ps1 be used inside a CI/CD pipeline?'
+  # InstallModel:
+  #   iterations: 1
   #   files:
-  #     - README.md
-  #   question_prompt: NoFileName
-  #   generate_question_list: [DocumentList]
-  #   question_instruction_list: [CasualandFormal]
+  #     - install_model.ps1
   #   file_header: DefaultFileHeader
   #   answer_prompt: DefaultAnswerPrompt
   #   answer_instruction_list: [Default]
+  #   question_list:
+  #     - 'What does the install_model.ps1 script do?'
+  #     - 'How do I run install_model.ps1?'
+  #     - 'Which parameters does install_model.ps1 accept?'
+  #     - 'What are the required arguments for install_model.ps1?'
+  #     - 'What is the purpose of install_model.ps1?'
+  #     - 'How does install_model.ps1 interact with Docker?'
+  #     - 'Which container does install_model.ps1 use?'
+  #     - 'What happens if the container is not running in install_model.ps1?'
+  #     - 'How does install_model.ps1 check for a running container?'
+  #     - 'What does install_model.ps1 do if the container is not running?'
+  #     - 'Which tools are supported by install_model.ps1?'
+  #     - 'What values can the -Tool parameter accept in install_model.ps1?'
+  #     - 'How does install_model.ps1 handle errors?'
+  #     - 'What happens if the Ollama command fails in install_model.ps1?'
+  #     - 'How does install_model.ps1 construct the model file path?'
+  #     - 'Where does install_model.ps1 store the model file?'
+  #     - 'What is the output location for models in install_model.ps1?'
+  #     - 'How do I specify the output directory in install_model.ps1?'
+  #     - 'What is the default behavior of install_model.ps1?'
+  #     - 'What is the function of the -Quantization parameter in install_model.ps1?'
+  #     - 'What happens if I provide an invalid tool name in install_model.ps1?'
+  #     - 'Does install_model.ps1 require administrative privileges?'
+  #     - 'Can install_model.ps1 run on Windows without Docker?'
+  #     - 'How can I debug errors in install_model.ps1?'
+  #     - 'What command does install_model.ps1 execute inside the container?'
+  #     - 'How does install_model.ps1 create an Ollama model?'
+  #     - 'What does the Write-Host command do in install_model.ps1?'
+  #     - 'How does install_model.ps1 handle success and failure cases?'
+  #     - 'How can I modify install_model.ps1 to support more tools?'
+  #     - 'Is install_model.ps1 compatible with all versions of PowerShell?'
+  #     - 'Can I use install_model.ps1 without specifying the quantization parameter?'
+  #     - 'What happens if the model file does not exist in install_model.ps1?'
+  #     - 'How does install_model.ps1 determine the base directory?'
+  #     - 'Can I run install_model.ps1 on a remote server?'
+  #     - 'Does install_model.ps1 support different container names?'
+  #     - 'How do I change the container name in install_model.ps1?'
+  #     - 'What error messages can install_model.ps1 generate?'
+  #     - 'How can I customize the logging in install_model.ps1?'
+  #     - 'Does install_model.ps1 support multiple model creations in one run?'
+  #     - 'Can install_model.ps1 handle multiple quantization formats?'
   # DeleteModel:
-  #   iterations: 3
+  #   iterations: 1
   #   files:
   #     - delete_model.ps1
-  #   question_prompt: WithFileName
-  #   generate_question_list: [CodingList]
-  #   question_instruction_list: [CasualandFormal]
   #   file_header: DefaultFileHeader
   #   answer_prompt: DefaultAnswerPrompt
   #   answer_instruction_list: [Default]
+  #   question_list:
+  #     - 'What does the delete_model.ps1 script do?'
+  #     - 'How does delete_model.ps1 function?'
+  #     - 'What is the purpose of the delete_model.ps1 script?'
+  #     - 'How do I execute the delete_model.ps1 script?'
+  #     - 'What parameters does delete_model.ps1 accept?'
+  #     - 'How do I specify the tool when using delete_model.ps1?'
+  #     - 'What happens if I enter the wrong confirmation path in delete_model.ps1?'
+  #     - 'Does delete_model.ps1 remove files permanently?'
+  #     - 'Can I recover a model deleted with delete_model.ps1?'
+  #     - 'Where exactly does delete_model.ps1 delete the model from?'
+  #     - 'What does delete_model.ps1 check before deleting a model?'
+  #     - 'Why does delete_model.ps1 verify if the container is running?'
+  #     - 'What happens if the container is not running when I use delete_model.ps1?'
+  #     - 'How can I confirm if the model directory exists before running delete_model.ps1?'
+  #     - 'What tools does delete_model.ps1 support for deletion?'
+  #     - 'How does delete_model.ps1 interact with Docker?'
+  #     - 'What is the expected output of delete_model.ps1 when a deletion is successful?'
+  #     - 'What error messages can delete_model.ps1 return?'
+  #     - 'Why does delete_model.ps1 require a confirmation input?'
+  #     - 'How do I verify that delete_model.ps1 deleted the correct model?'
+  #     - 'Can I use delete_model.ps1 to remove multiple models at once?'
+  #     - 'Is there a way to bypass the confirmation in delete_model.ps1?'
+  #     - 'What should I do if delete_model.ps1 fails to delete a model?'
+  #     - 'Does delete_model.ps1 log deletions anywhere?'
+  #     - 'Can delete_model.ps1 be modified to delete non-model files?'
+  #     - 'How do I debug errors in delete_model.ps1?'
+  #     - 'What does the confirmation step in delete_model.ps1 prevent?'
+  #     - 'Does delete_model.ps1 work on Windows and Linux?'
+  #     - 'What does delete_model.ps1 use `$Tool` for?'
+  #     - 'How do I make delete_model.ps1 more verbose for debugging?'
+  #     - 'Can delete_model.ps1 be used inside a script without user interaction?'
+  #     - 'What does delete_model.ps1 do if the specified directory does not exist?'
+  #     - 'Why does delete_model.ps1 use Docker exec to remove files?'
+  #     - 'Is delete_model.ps1 safe to use in production environments?'
+  #     - 'How can I test delete_model.ps1 without actually deleting files?'
+  #     - 'How long does delete_model.ps1 take to delete a model?'
+  #     - 'Does delete_model.ps1 check for permissions before deletion?'
+  #     - 'Can delete_model.ps1 be modified to require additional authentication?'
+  #     - 'What PowerShell version is required to run delete_model.ps1?'
+  #     - 'What are the security risks of using delete_model.ps1?'
+  #     - 'Why does delete_model.ps1 use `rm -rf` instead of another deletion method?'
+  #     - 'How do I customize delete_model.ps1 to work with a different container name?'
+  #     - 'What happens if delete_model.ps1 is interrupted mid-execution?'
+  #     - 'How do I integrate delete_model.ps1 into an automated workflow?'
+  #     - 'Can delete_model.ps1 delete directories outside of the container?'
+  #     - 'Does delete_model.ps1 work if the container is paused instead of stopped?'
+  #     - 'How do I check if delete_model.ps1 successfully deleted a model?'
+  #     - 'What are best practices for using delete_model.ps1 safely?'
+  # README:
+  #   iterations: 1
+  #   files:
+  #     - README.md
+  #   file_header: DefaultFileHeader
+  #   answer_prompt: DefaultAnswerPrompt
+  #   answer_instruction_list: [Default]
+  #   question_list:
+  #     - 'How does Kolo automate the fine-tuning setup process?'
+  #     - 'What are the system requirements for running Kolo?'
+  #     - 'Can I fine-tune LLMs on Kolo using an Nvidia GPU?'
+  #     - 'How do I configure Kolo for an AMD GPU?'
+  #     - 'Does Kolo support Windows for fine-tuning models?'
+  #     - 'What are the main differences between Unsloth and Torchtune in Kolo?'
+  #     - 'How do I install a model in Kolo, and where is it stored?'
+  #     - 'What happens when I uninstall a model from Kolo?'
+  #     - 'How do I delete a fine-tuned model in Kolo?'
+  #     - 'Can I run Kolo on MacOS?'
+  #     - 'How do I list all installed models in Kolo?'
+  #     - 'What steps are needed to build the Kolo Docker image?'
+  #     - 'What does the build_image.ps1 script do?'
+  #     - 'How do I start the Kolo container after installation?'
+  #     - 'What is the difference between create_and_run_container.ps1 and run_container.ps1?'
+  #     - 'How do I copy training data into Kolo for fine-tuning?'
+  #     - 'Can Kolo generate synthetic training data?'
+  #     - 'How do I train a model using Unsloth in Kolo?'
+  #     - 'How do I train a model using Torchtune in Kolo?'
+  #     - 'What parameters can I adjust when fine-tuning with Unsloth?'
+  #     - 'What parameters can I adjust when fine-tuning with Torchtune?'
+  #     - 'How do I access the Kolo container via SSH?'
+  #     - 'What are the default SSH credentials for Kolo?'
+  #     - 'How can I use WinSCP to transfer files into the Kolo container?'
+  #     - 'How do I install ROCm for AMD GPU support in Kolo?'
+  #     - 'Can I run Kolo in a cloud environment?'
+  #     - 'Does Kolo support multi-GPU fine-tuning?'
+  #     - 'How do I check GPU compatibility before running Kolo?'
+  #     - 'What are the advantages of using Kolo over other fine-tuning solutions?'
+  #     - 'Does Kolo support quantization for optimizing models?'
+  #     - 'How do I install additional Python libraries inside the Kolo container?'
+  #     - 'Can I add my own scripts to Kolo’s workflow?'
+  #     - 'How do I restart the Kolo container without losing progress?'
+  #     - 'What is the best way to debug issues in Kolo?'
+  #     - 'How do I update Kolo to the latest version?'
+  #     - 'Does Kolo support training data augmentation?'
+  #     - 'How can I monitor GPU usage while training in Kolo?'
+  #     - 'Can I deploy fine-tuned models directly from Kolo?'
+  #     - 'What is the role of Ollama in Kolo?'
+  #     - 'How does Kolo use Llama.cpp for model conversion?'
+  #     - 'What formats are supported for training data in Kolo?'
+  #     - 'How do I configure Kolo for large-scale datasets?'
+  #     - 'Does Kolo support real-time inference after fine-tuning?'
+  #     - 'How can I contribute to the Kolo project?'
+  #     - 'Where can I find community support for Kolo?'
+  #     - 'What are the security best practices for using Kolo?'
+  #     - 'Does Kolo support distributed training across multiple machines?'
+  #     - 'How do I customize the fine-tuning scripts in Kolo?'
+  #     - 'How do I install Kolo on my machine?'
+  #     - 'What are the system requirements for running Kolo?'
+  #     - 'Can I run Kolo without a dedicated GPU?'
+  #     - 'What is the difference between installing and uninstalling a model in Kolo?'
+  #     - 'How do I update Kolo to the latest version?'
+  #     - 'What’s the purpose of the Kolo Docker container?'
+  #     - 'How do I remove Kolo completely from my system?'
+  #     - 'Does Kolo work with MacOS?'
+  #     - 'What is the best way to train a model using Kolo?'
+  #     - 'How do I configure my model training settings in Kolo?'
+  #     - 'Can I fine-tune models with Kolo on a low-end machine?'
+  #     - 'What is the difference between training with Unsloth vs Torchtune in Kolo?'
+  #     - 'How do I set up Kolo for AMD GPUs?'
+  #     - 'Can I use Kolo on Windows with an AMD GPU?'
+  #     - 'How do I restart a stopped Kolo container?'
+  #     - 'What are the available scripts in Kolo and how do I use them?'
+  #     - 'How does Kolo compare to other LLM fine-tuning solutions?'
+  #     - 'Can I customize Kolo’s training parameters?'
+  #     - 'How do I troubleshoot issues when running Kolo?'
+  #     - 'Where does Kolo store the trained models?'
+  #     - 'What quantization options are available in Kolo?'
+  #     - 'How do I install a fine-tuned model in Kolo?'
+  #     - 'Can I use Kolo for inference without fine-tuning?'
+  #     - 'How do I generate synthetic training data using Kolo?'
+  #     - 'What does the copy_training_data.ps1 script do?'
+  #     - 'How do I access Kolo’s container via SSH?'
+  #     - 'What’s the difference between create_and_run_container.ps1 and run_container.ps1?'
+  #     - 'How do I delete a previously fine-tuned model in Kolo?'
+  #     - 'Is Kolo suitable for commercial AI projects?'
+  #     - 'Can I fine-tune multiple models simultaneously with Kolo?'
+  #     - 'How do I check which models are installed in Kolo?'
+  #     - 'What is the recommended batch size for training models in Kolo?'
+  #     - 'How do I test an installed model using Kolo?'
+  #     - 'How does Kolo handle model storage and management?'
+  #     - 'What are the security best practices when using Kolo?'
+  #     - 'How do I expose my fine-tuned model as an API using Kolo?'
+  #     - 'What should I do if my Kolo container fails to start?'
+  #     - 'Does Kolo support distributed training?'
+  #     - 'How do I add new scripts or modify existing ones in Kolo?'
+  #     - 'What is the default SSH password for the Kolo container?'
+  #     - 'Can I use Kolo with a different LLM framework like TensorFlow?'
+  #     - 'How do I install additional dependencies inside the Kolo container?'
+  #     - 'What’s the difference between Ollama and Llama.cpp in Kolo?'
+  #     - 'Can I use Kolo to fine-tune models other than LLaMA?'
+  #     - 'How do I monitor training progress inside the Kolo container?'
+  #     - 'What are the advantages of using Kolo over setting up an LLM environment manually?'
+  #     - 'How does Kolo optimize fine-tuning for VRAM efficiency?'
+  #     - 'What troubleshooting steps should I follow if my model fails to train in Kolo?'
+  #     - 'How do I export a fine-tuned model from Kolo for external use?'
   # BuildImage:
-  #   iterations: 3
-  #   question_prompt: WithFileName
-  #   generate_question_list: [CodingList, DocumentList]
-  #   question_instruction_list: [CasualandFormal]
-  #   file_header: DefaultFileHeader
-  #   answer_prompt: DefaultAnswerPrompt
-  #   answer_instruction_list: [Default]
+  #   iterations: 1
   #   files:
   #     - build_image.ps1
   #     - dockerfile
   #     - supervisord.conf
-  # TrainTorchTune:
-  #   iterations: 3
-  #   question_prompt: WithFileName
-  #   generate_question_list: [CodingList]
-  #   question_instruction_list: [CasualandFormal]
   #   file_header: DefaultFileHeader
   #   answer_prompt: DefaultAnswerPrompt
   #   answer_instruction_list: [Default]
+  #   question_list:
+  #     - 'Can you explain how build_image.ps1, dockerfile, and supervisord.conf work together to set up the environment?'
+  #     - 'What role does supervisord.conf play in managing services inside the container?'
+  #     - 'Can you provide a list of all software packages installed via the Dockerfile along with their versions?'
+  #     - 'How does build_image.ps1 interact with the Dockerfile, and what is its purpose in the build process?'
+  #     - 'Why is supervisord used instead of systemd or other process managers inside the container?'
+  #     - 'What is the significance of setting up multiple Conda environments in the Dockerfile?'
+  #     - 'Can you list all the environment variables and dependencies set in the Dockerfile and explain their purpose?'
+  #     - 'How does the container handle dependency management across different Python environments?'
+  #     - 'Why is the root password explicitly set in the Dockerfile, and is it a security risk?'
+  #     - 'What does the command "CMD ["/usr/bin/supervisord"]" do in the Dockerfile?'
+  #     - 'What specific services does supervisord manage inside the container, and how are they configured?'
+  #     - 'Why is the SSH daemon included in the container, and what purpose does it serve?'
+  #     - 'How does the Dockerfile ensure that the installed dependencies are consistent across different builds?'
+  #     - 'What happens when you run build_image.ps1? What are the steps executed in the script?'
+  #     - 'Can you provide a high-level overview of how the Docker image is structured and built?'
+  #     - 'Why does the Dockerfile install Open-webui in a separate Conda environment?'
+  #     - 'How is the entry point of the container defined, and why is it set to run supervisord?'
+  #     - 'What are the risks of running services as root inside the container?'
+  #     - 'Why is NVIDIA CUDA used as the base image, and what benefits does it provide?'
+  #     - 'How is the Conda environment activated inside the container when a new shell is opened?'
+  #     - 'Why are certain packages installed using pip instead of Conda?'
+  #     - 'Can you explain why xformers is installed via a specific PyTorch URL instead of pip or Conda directly?'
+  #     - 'What is the purpose of setting a long timeout for pip commands in the Dockerfile?'
+  #     - 'Why are specific git commits used when installing packages like unsloth?'
+  #     - 'How does the Dockerfile optimize the build process to minimize unnecessary dependencies?'
+  #     - 'What does the command "RUN conda clean -afy" do, and why is it necessary?'
+  #     - 'Why is the working directory set to "/app" in the Dockerfile, and how does it affect execution?'
+  #     - 'How does the Dockerfile ensure that OpenAI’s API client is correctly installed?'
+  #     - 'Why is the repository for Open-webui directly referenced via git instead of using a package manager?'
+  #     - 'How does the installation of Ollama work, and why is it done via a shell script?'
+  #     - 'What role does the volume "/var/kolo_data" play in the container setup?'
+  #     - 'Why are some commands executed with "SHELL" directives to change the environment context?'
+  #     - 'How does the Dockerfile optimize for reproducibility across different machines?'
+  #     - 'What is the significance of the "EXPOSE" directive in the Dockerfile, and which services use it?'
+  #     - 'How does the Dockerfile handle cleaning up unnecessary files to reduce image size?'
+  #     - 'Why is the SSH daemon started in the container instead of using alternative access methods?'
+  #     - 'What does the "nodaemon=true" setting in supervisord.conf do, and why is it needed?'
+  #     - 'How does supervisord restart services if they fail inside the container?'
+  #     - 'What logs are generated by supervisord, and where are they stored inside the container?'
+  #     - 'How are user permissions managed inside the container, and what are the security implications?'
+  #     - 'Why does the Dockerfile install CMake, and what role does it play in the setup?'
+  #     - 'What is the purpose of compiling llama.cpp inside the container, and how is it executed?'
+  #     - 'Can you detail what each RUN command does in the dockerfile and why each step is necessary?'
+  #     - 'What is the relationship between build_image.ps1 and the Docker image creation process?'
+  #     - 'Could you list all Conda environments created in the dockerfile and their purposes?'
+  #     - 'What specifically does supervisord run upon container startup?'
+  #     - 'Why does supervisord need to run sshd, ollama, and open-webui together?'
+  #     - 'What are the specific package versions installed via pip, and why are these versions used?'
+  #     - 'Can you explain how SSH configuration is handled within the dockerfile?'
+  #     - 'Why is Node.js installed separately instead of through conda or apt-get?'
+  #     - 'What role does ollama play in the overall container architecture?'
+  #     - 'Why does the dockerfile clone and build llama.cpp specifically?'
+  #     - 'Could you explain how supervisord ensures the services remain running?'
+  #     - 'What is the reason for explicitly pinning package versions in the dockerfile?'
+  #     - 'How does the dockerfile handle cleanup and why?'
+  #     - 'What are the differences between the two Conda environments (kolo_env and openwebui_env)?'
+  #     - 'Why is the Conda remote_read_timeout_secs configured, and how does it impact builds?'
+  #     - 'Can you explain why supervisord runs as the CMD in the dockerfile?'
+  #     - 'What is the purpose of setting up both conda environments and installing separate packages?'
+  #     - 'How does supervisord manage the logging of different services?'
+  #     - 'Why are specific PyTorch and CUDA versions chosen in this dockerfile?'
+  #     - 'Could you explain the role of the scripts copied into the Docker container?'
+  #     - 'What is the significance of the /var/kolo_data volume created in the dockerfile?'
+  #     - 'Why does the dockerfile perform multiple apt-get updates at different stages?'
+  #     - 'What specific configuration does build_image.ps1 pass to Docker?'
+  #     - 'Why is cmake installed separately, and how does it relate to llama.cpp?'
+  #     - 'How do the scripts under the /app/ directory interact with supervisord?'
+  #     - 'What is the role of the torchtune configuration files copied into the image?'
+  #     - 'Could you clarify the role of supervisord in managing the Open-WebUI service specifically?'
+  #     - 'What security implications does permitting root login via SSH have in this container?'
+  #     - 'Why is xformers installed via pip instead of through conda?'
+  #     - 'How are conflicts managed between different Python package installations in separate Conda environments?'
+  #     - 'Can you provide details on why Anaconda3 is specifically installed, versus Miniconda or another distribution?'
+  #     - 'What is the rationale behind installing unsloth from a specific GitHub commit?'
+  #     - 'Why is OpenAI’s Python client specifically versioned at 1.64.0?'
+  #     - 'How does the dockerfile ensure Ollama runs correctly and integrates with supervisord?'
+  #     - 'Could you explain the role of activating conda environments within supervisord managed commands?'
+  #     - 'Why are ports 22 and 8080 specifically exposed in the Dockerfile?'
+  # TrainTorchTune:
+  #   iterations: 1
   #   files:
   #     - train_model_torchtune.ps1
   #     - merge_lora.py
   #     - convert_jsonl_to_json.py
+  #   file_header: DefaultFileHeader
+  #   answer_prompt: DefaultAnswerPrompt
+  #   answer_instruction_list: [Default]
+  #   question_list:
+  #     - 'Can you explain how build_image.ps1, dockerfile, and supervisord.conf work together to set up the environment?'
   # TrainUnsloth:
   #   iterations: 3
   #   question_prompt: WithFileName
