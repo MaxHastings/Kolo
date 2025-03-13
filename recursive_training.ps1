@@ -58,6 +58,8 @@ for ($i = 1; $i -le $Rounds; $i++) {
 
     if ($installedModelsOutput -match $trainOutputDir) {
         Write-Output "Model '$trainOutputDir' is already installed. Skipping round $i."
+        # Always update the current model, even when skipping.
+        $currentModel = $trainOutputDir
         continue
     }
 
