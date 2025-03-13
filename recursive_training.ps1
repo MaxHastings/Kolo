@@ -50,6 +50,17 @@ for ($i = 1; $i -le $Rounds; $i++) {
     $trainOutputDir = "$TrainOutputPrefix" + "rev$i"
     $fullTrainOutputDir = "$basePath/$trainOutputDir"
 
+    # --- Check if the fine-tuned model is already installed ---
+    $cmdList = "docker exec kolo_container ollama list"
+    Write-Output "Checking installed models in Ollama..."
+    $installedModelsOutput = Invoke-Expression $cmdList
+    Write-Output $installedModelsOutput
+
+    if ($installedModelsOutput -match $trainOutputDir) {
+        Write-Output "Model '$trainOutputDir' is already installed. Skipping round $i."
+        continue
+    }
+
     # Step 1: Generate QA Data using the current model.
     $cmdGenerate = "./generate_qa_data.ps1 -Threads 1 -qa_outputDir `"$qaOutputDir`" -Model `"$currentModel`""
     Run-CommandWithRetry -Command $cmdGenerate
