@@ -46,6 +46,22 @@ Ensure [Docker Desktop](https://docs.docker.com/get-docker/) is installed. Or [D
 
 Install [ROCM](https://rocm.docs.amd.com/projects/install-on-linux/en/latest/install/quick-start.html) on Linux.
 
+### Clone the repository 
+
+For windows:
+
+```bash
+git clone https://github.com/MaxHastings/Kolo.git
+cd Kolo
+```
+
+For Linux:
+
+```bash
+git clone git@github.com:MaxHastings/Kolo.git
+cd Kolo
+```
+
 ### 2️⃣ Build the Image
 
 To build the image, run:
