@@ -93,7 +93,7 @@ for ($i = 1; $i -le $Rounds; $i++) {
             $useCheckpoint = " -UseCheckpoint"
         }
         
-        $cmdTrain = "./train_model_torchtune.ps1 -OutputDir `"$trainOutputDir`" -Quantization `"Q4_K_M`" -TrainData `"data.json`" -HfToken `"$HfToken`" -LearningRate 5e-4 -Epochs 3 -BaseModel `"Meta-llama/Llama-3.1-8B-Instruct`" -MaxSeqLength 2048 -BatchSize 1$useCheckpoint"
+        $cmdTrain = "./train_model_torchtune.ps1 -OutputDir `"$trainOutputDir`" -Quantization `"Q4_K_M`" -TrainData `"data.json`" -HfToken `"$HfToken`" -LearningRate 3e-4 -Epochs 3 -BaseModel `"Meta-llama/Llama-3.1-8B-Instruct`" -MaxSeqLength 2048 -BatchSize 1$useCheckpoint"
         Run-CommandWithRetry -Command $cmdTrain
     }
 
