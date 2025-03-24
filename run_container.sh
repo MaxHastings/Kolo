@@ -1,4 +1,6 @@
+#!/bin/bash
+
 # Stop script on error
-$ErrorActionPreference = "Stop"
+set -e
 
 docker start kolo_container
