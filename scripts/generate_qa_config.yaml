@@ -6,11 +6,11 @@ global:
 
 providers:
   question:
-    provider: openai # Use "ollama" or "openai"
-    model: gpt-4o-mini
+    provider: ollama # Use "ollama" or "openai"
+    model: gemma3:4b
   answer:
-    provider: openai # Use "ollama" or "openai"
-    model: gpt-4o-mini
+    provider: ollama # Use "ollama" or "openai"
+    model: gemma3:4b
 
 QuestionInstructionList:
   - name: 'CasualandFormal'
