@@ -1,6 +1,9 @@
 # Unified Dockerfile for CPU/NVIDIA/AMD environments
 FROM ubuntu:22.04
 
+# Accept hardware type as build argument
+ARG HARDWARE_TYPE=cpu
+
 # Set the DEBIAN frontend to non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -36,30 +39,24 @@ RUN /opt/conda/bin/conda create -y --name kolo_env python=3.10
 # Set Conda timeout
 RUN /opt/conda/bin/conda config --set remote_read_timeout_secs 86400
 
-# Copy hardware detection script and setup scripts
-COPY scripts/detect_hardware.py /tmp/
-COPY scripts/setup_env.sh /tmp/
-COPY scripts/run_detection.sh /app/
+# Store hardware type in a file for reference and print to console
+RUN echo "Building for hardware type: ${HARDWARE_TYPE}" && \
+    echo "${HARDWARE_TYPE}" > /tmp/hardware_type.txt
 
-# Make scripts executable
-RUN chmod +x /tmp/detect_hardware.py /tmp/setup_env.sh /app/run_detection.sh
+# Setup environment based on the specified hardware type
+ENV HARDWARE_TYPE=${HARDWARE_TYPE}
 
-# Run hardware detection and store the result
-RUN python3 /tmp/detect_hardware.py || echo "cpu" > /tmp/hardware_type.txt
-
-# Run environment setup script
-RUN /tmp/setup_env.sh
+# Setup hardware-specific environment
+COPY scripts/setup_hardware.sh /tmp/
+RUN chmod +x /tmp/setup_hardware.sh && /tmp/setup_hardware.sh ${HARDWARE_TYPE}
 
 # Install common packages in kolo_env
 SHELL ["/opt/conda/bin/conda", "run", "-n", "kolo_env", "/bin/bash", "-c"]
 
-# Install PyTorch and related packages
-RUN pip install torch==2.6.0 torchvision==0.21.0 torchao==0.8.0 torchtune==0.5.0
-
 # Set a long timeout for pip commands
 RUN pip config set global.timeout 86400
 
-# Install packages with exact version pins
+# Install common packages with exact version pins
 RUN pip install numpy==2.2.3 datasets==3.3.2
 
 # Install unsloth from a specific commit
@@ -114,6 +111,10 @@ RUN git clone https://github.com/ggerganov/llama.cpp && \
     cmake --build build --config Release
 
 RUN mv llama.cpp/build/bin/llama-quantize llama.cpp/
+
+# Copy the run detection script
+COPY scripts/run_detection.sh /app/
+RUN chmod +x /app/run_detection.sh
 
 # Copy remaining scripts and torchtune configurations
 COPY scripts /app/scripts/

@@ -4,7 +4,9 @@
 ###
 ### Usage:
 ### ./train_model_unsloth.sh -e 3 -l 1e-4 -t "data.jsonl" -b "unsloth/Llama-3.2-1B-Instruct-bnb-4bit" -c "llama-3.1" -r 16 -a 16 -d 0 -m 1024 -w 10 -s 500 -i 5 -S 1337 -T "linear" -B 2 -o "GodOutput" -q "Q4_K_M" -W 0 -u -f
-### When -f is used, HF_HUB_ENABLE_HF_TRANSFER=1 will be set, forcing HF to use the faster but much less reliable Rust downloader (recommended only for 1Gbps+ connections)
+### Or with long options:
+### ./train_model_unsloth.sh --Epochs 3 --LearningRate 1e-4 --TrainData "data.jsonl" --BaseModel "unsloth/Llama-3.2-1B-Instruct-bnb-4bit" --ChatTemplate "llama-3.1" --LoraRank 16 --LoraAlpha 16 --LoraDropout 0 --MaxSeqLength 1024 --WarmupSteps 10 --SaveSteps 500 --SaveTotalLimit 5 --Seed 1337 --SchedulerType "linear" --BatchSize 2 --OutputDir "GodOutput" --Quantization "Q4_K_M" --WeightDecay 0 --UseCheckpoint --FastTransfer
+### When -f/--FastTransfer is used, HF_HUB_ENABLE_HF_TRANSFER=1 will be set, forcing HF to use the faster but much less reliable Rust downloader (recommended only for 1Gbps+ connections)
 
 # Default values
 EPOCHS=""
@@ -29,29 +31,92 @@ USE_CHECKPOINT=false
 FAST_TRANSFER=false
 
 # Parse command line arguments
-while getopts "e:l:t:b:c:r:a:d:m:w:s:i:S:T:B:o:q:W:uf" opt; do
-  case $opt in
-    e) EPOCHS="$OPTARG" ;;
-    l) LEARNING_RATE="$OPTARG" ;;
-    t) TRAIN_DATA="$OPTARG" ;;
-    b) BASE_MODEL="$OPTARG" ;;
-    c) CHAT_TEMPLATE="$OPTARG" ;;
-    r) LORA_RANK="$OPTARG" ;;
-    a) LORA_ALPHA="$OPTARG" ;;
-    d) LORA_DROPOUT="$OPTARG" ;;
-    m) MAX_SEQ_LENGTH="$OPTARG" ;;
-    w) WARMUP_STEPS="$OPTARG" ;;
-    s) SAVE_STEPS="$OPTARG" ;;
-    i) SAVE_TOTAL_LIMIT="$OPTARG" ;;
-    S) SEED="$OPTARG" ;;
-    T) SCHEDULER_TYPE="$OPTARG" ;;
-    B) BATCH_SIZE="$OPTARG" ;;
-    o) OUTPUT_DIR="$OPTARG" ;;
-    q) QUANTIZATION="$OPTARG" ;;
-    W) WEIGHT_DECAY="$OPTARG" ;;
-    u) USE_CHECKPOINT=true ;;
-    f) FAST_TRANSFER=true ;;
-    \?) echo "Invalid option -$OPTARG" >&2; exit 1 ;;
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    -e|--Epochs)
+      EPOCHS="$2"
+      shift 2
+      ;;
+    -l|--LearningRate)
+      LEARNING_RATE="$2"
+      shift 2
+      ;;
+    -t|--TrainData)
+      TRAIN_DATA="$2"
+      shift 2
+      ;;
+    -b|--BaseModel)
+      BASE_MODEL="$2"
+      shift 2
+      ;;
+    -c|--ChatTemplate)
+      CHAT_TEMPLATE="$2"
+      shift 2
+      ;;
+    -r|--LoraRank)
+      LORA_RANK="$2"
+      shift 2
+      ;;
+    -a|--LoraAlpha)
+      LORA_ALPHA="$2"
+      shift 2
+      ;;
+    -d|--LoraDropout)
+      LORA_DROPOUT="$2"
+      shift 2
+      ;;
+    -m|--MaxSeqLength)
+      MAX_SEQ_LENGTH="$2"
+      shift 2
+      ;;
+    -w|--WarmupSteps)
+      WARMUP_STEPS="$2"
+      shift 2
+      ;;
+    -s|--SaveSteps)
+      SAVE_STEPS="$2"
+      shift 2
+      ;;
+    -i|--SaveTotalLimit)
+      SAVE_TOTAL_LIMIT="$2"
+      shift 2
+      ;;
+    -S|--Seed)
+      SEED="$2"
+      shift 2
+      ;;
+    -T|--SchedulerType)
+      SCHEDULER_TYPE="$2"
+      shift 2
+      ;;
+    -B|--BatchSize)
+      BATCH_SIZE="$2"
+      shift 2
+      ;;
+    -o|--OutputDir)
+      OUTPUT_DIR="$2"
+      shift 2
+      ;;
+    -q|--Quantization)
+      QUANTIZATION="$2"
+      shift 2
+      ;;
+    -W|--WeightDecay)
+      WEIGHT_DECAY="$2"
+      shift 2
+      ;;
+    -u|--UseCheckpoint)
+      USE_CHECKPOINT=true
+      shift
+      ;;
+    -f|--FastTransfer)
+      FAST_TRANSFER=true
+      shift
+      ;;
+    *)
+      echo "Unknown option: $1"
+      exit 1
+      ;;
   esac
 done
 

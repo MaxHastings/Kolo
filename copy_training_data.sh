@@ -4,7 +4,7 @@
 CONTAINER_NAME="kolo_container"
 DEST_FILE="data.jsonl"
 JSON_OUTPUT_FILE="data.json"
-SCRIPT_PATH="/home/ailab/pr/Kolo/scripts/convert_jsonl_to_json.py"  # Update path
+SCRIPT_PATH="scripts/convert_jsonl_to_json.py"  # Update path
 
 # Display help
 function show_help {

@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Usage Example:
-# ./install_model.sh "God" -t "unsloth" -o "GodOutput" -q "Q4_K_M"
-# ./install_model.sh "God" -t "torchtune" -o "GodOutput" -q "Q4_K_M"
+# ./install_model.sh "God" --tool "unsloth" --output-dir "GodOutput" --quantization "Q4_K_M"
+# ./install_model.sh "God" --tool "torchtune" --output-dir "GodOutput" --quantization "Q4_K_M"
 
 # Default values
 MODEL_NAME=""
@@ -39,17 +39,17 @@ if [[ -z "$MODEL_NAME" ]]; then
 fi
 
 if [[ -z "$OUTPUT_DIR" ]]; then
-    echo "Error: Output directory (-o) is required."
+    echo "Error: Output directory (--output-dir) is required."
     exit 1
 fi
 
 if [[ -z "$QUANTIZATION" ]]; then
-    echo "Error: Quantization (-q) is required."
+    echo "Error: Quantization (--quantization) is required."
     exit 1
 fi
 
 if [[ -z "$TOOL" ]]; then
-    echo "Error: Tool (-t) is required."
+    echo "Error: Tool (--tool) is required."
     exit 1
 fi
 
